@@ -1,0 +1,25 @@
+name: Deploy CikaNation-Api
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy-boyslot:
+    name: Deploy CikaNation-Api
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: staging
+
+      - name: Deploy CikaNation-Api
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AGENT_STAGGING_IP }}
+          username: ${{ secrets.HOST }}
+          key: ${{ secrets.SSHKEY_S}}
+          port: ${{ secrets.SSH_PORT }}
+          script: ./cikanationapi.sh
