@@ -1,0 +1,22 @@
+name: Deploy CikaNation API
+
+on:
+  push:
+    branches: [master]
+jobs:
+  deploy:
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Deploy CikaNation API
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD }}
+          username: ${{ secrets.HOSTNAME }}
+          key: ${{ secrets.KEY}}
+          port: ${{ secrets.PORT }}
+          script: |
+            pwd
+            ./production.sh
