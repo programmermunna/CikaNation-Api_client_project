@@ -63,6 +63,12 @@ to seed the database, simply use
 ```
 <hr>
 
+# Important Notes:
+* PLEASE DO NOT MERGE ANY BRANCH WITH FAILED TESTS.
+
+To check if test passes,
+click on action tab, check that all test has passed before merging
+
 
 after that, visit you can view the application on your local machine
 with http://127.0.0.1:8000
