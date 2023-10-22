@@ -47,6 +47,7 @@ class UserLoginTest extends FeatureBaseCase
             'token_type' => 'Bearer',
             'data' => [
                 'token_type' => 'Bearer',
+                'token_type3' => 'Bearer',
             ]
         ]);
     }
