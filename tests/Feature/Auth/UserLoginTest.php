@@ -14,7 +14,7 @@ class UserLoginTest extends FeatureBaseCase
         $user = User::factory()
             ->createQuietly();
 
-        $response = $this->post('/api/v1/login', [
+        $response = $this->postJson('/api/v1/login', [
             'username' => $user->username,
             'password' => 'password',
         ], $this->headers);
@@ -48,5 +48,82 @@ class UserLoginTest extends FeatureBaseCase
                 'token_type' => 'Bearer',
             ]
         ]);
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider userLoginData
+     */
+    public function testUserLoginInputValidation($credentials, $errors, $errorKeys)
+    {
+        $user = User::factory()
+            ->createQuietly();
+
+        $this->headers = [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ];
+
+        $response = $this->postJson('/api/v1/login', $credentials, $this->headers);
+
+        $response->assertJsonValidationErrors($errorKeys);
+        foreach ($errorKeys as $errorKey) {
+            $response->assertJsonValidationErrorFor($errorKey);
+        }
+
+        $inValidPasswordResponse = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'someNotCorrectPassword'
+        ], $this->headers);
+
+        $inValidPasswordResponse->assertJson([
+            "status" => "failed",
+            "message" => "Invalid Login Credentials"
+        ]);
+    }
+
+    public static function userLoginData(): array
+    {
+        return [
+            [
+                [
+                    'username' => 'username',
+                    'password' => 'password',
+                ],
+                [
+                    'username' => [
+                        'The selected username is invalid.',
+                    ],
+                ],
+                [
+                    'username'
+                ]
+            ],
+            [
+                [
+                    'password' => 'password',
+                ],
+                [
+                    'username' => [
+                        'The username field is required.'
+                    ],
+                ],
+                [
+                    'username'
+                ]
+            ],
+            [
+                [
+                    'username' => 'username',
+                ],
+                [
+                    'password' => ['The password field is required.'],
+                ],
+                [
+                    'password'
+                ]
+            ]
+        ];
     }
 }
