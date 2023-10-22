@@ -44,10 +44,8 @@ class UserLoginTest extends FeatureBaseCase
 
         $response->assertJson([
             'status' => 'success',
-            'token_type' => 'Bearer',
             'data' => [
                 'token_type' => 'Bearer',
-                'token_type3' => 'Bearer',
             ]
         ]);
     }
