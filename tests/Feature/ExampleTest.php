@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\FeatureBaseCase;
 
-class ExampleTest extends TestCase
+class ExampleTest extends FeatureBaseCase
 {
+    use RefreshDatabase;
     /**
      * A basic test example.
      */
@@ -15,5 +16,9 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'status',
+            'message'
+        ]);
     }
 }
