@@ -70,11 +70,22 @@ class AuthController extends Controller
         ], 200);
     }
 
-    //@todo muna please add a unit test to cover this. !IMPORTANT
-    protected function permissions($userId): array|\Throwable|\Exception
+    /**
+     *
+     * @param $userId
+     * @return array|array[]
+     *
+     * @todo muna please add a unit test to cover this. !IMPORTANT
+     */
+    protected function permissions($userId): array
     {
         try {
-            $permissionAgents = User::with('permissionUser')->select('id')->find($userId)->toArray()['permission_user'][0]['role'][0]['permissions'];
+            //muna please clean this up
+            $permissionAgents = User::with('permissionUser')
+                ->select('id')
+                ->find($userId)
+                ->toArray()['permission_user'][0]['role'][0]['permissions'];
+
             $permissions = \Spatie\Permission\Models\Permission::get()->toArray();
 
             $newPermissions = [];
@@ -102,10 +113,10 @@ class AuthController extends Controller
                 }
             }
 
-            $admin = collect($newPermissions)->where('modul_name', 'admin')->groupBy('group_by')->all();
+            $admin = collect($newPermissions)->where('modul_name', 'user')->groupBy('group_by')->all();
 
             $data = [
-                'Agent' => [$admin],
+                'User' => [$admin],
             ];
 
             return $data;
