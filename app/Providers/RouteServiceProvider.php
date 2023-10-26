@@ -33,18 +33,16 @@ class RouteServiceProvider extends ServiceProvider
             /**
              * All api's routes are goes here
              */
-            
+
             Route::middleware('api')
-                ->prefix('api')
-                ->prefix(config('app.api_version'))
+                ->prefix('api/' . config('app.api_version'))
                 ->group(base_path('routes/api.php'));
 
             /**
              * Authentication routes goes here
              */
             Route::middleware('api')
-                ->prefix('api')
-                ->prefix(config('app.api_version'))
+                ->prefix('api/' . config('app.api_version'))
                 ->group(base_path('routes/auth.php'));
 
 

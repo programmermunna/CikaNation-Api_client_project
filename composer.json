@@ -15,6 +15,7 @@
         "sentry/sentry-laravel": "^3.8",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-permission": "^5.11",
+        "tymon/jwt-auth": "^2.0",
         "verschuur/laravel-robotstxt": "^5.0"
     },
     "require-dev": {
