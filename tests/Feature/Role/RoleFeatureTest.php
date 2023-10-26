@@ -16,7 +16,7 @@ class RoleFeatureTest extends TestCase
     public function test_user_role_creation(): void
     {
         $this->artisan('migrate:fresh --seed');
-              
+
         $user = User::factory()
             ->state([
                 'active' => true
@@ -31,17 +31,17 @@ class RoleFeatureTest extends TestCase
 
 
         $response->assertStatus(200);
-            $response->assertJsonStructure([
-                "status",
-                "message",
-                "data" => [
-                    "guard_name",
-                    "name",
-                    "updated_at",
-                    "created_at",
-                    "id",
-                ]
-            ]);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data" => [
+                "guard_name",
+                "name",
+                "updated_at",
+                "created_at",
+                "id",
+            ]
+        ]);
     }
 
 
@@ -49,49 +49,86 @@ class RoleFeatureTest extends TestCase
      * Update Role
      */
 
-     public function test_user_role_update(): void
-     {
-         $this->artisan('migrate:fresh --seed');
-               
-         $user = User::factory()
-             ->state([
-                 'active' => true
-             ])
-             ->createQuietly();
+    public function test_user_role_update(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
 
 
         $role = Role::create([
             'name' => 'Test_Role'
         ]);
- 
- 
-         $response = $this->actingAs($user)->putJson(route('roles.update', $role->id), [
-             'name' => Str::random(10),
-             'permissions' => [1, 2, 3]
-         ]);
- 
- 
-         $response->assertStatus(200);
-             $response->assertJsonStructure([
-                 "status",
-                 "message",
-                 "data" => [
-                     "guard_name",
-                     "name",
-                     "updated_at",
-                     "created_at",
-                     "id",
-                 ]
-             ]);
-     }
 
 
+        $response = $this->actingAs($user)->putJson(route('roles.update', $role->id), [
+            'name' => Str::random(10),
+            'permissions' => [1, 2, 3]
+        ]);
+
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data" => [
+                "guard_name",
+                "name",
+                "updated_at",
+                "created_at",
+                "id",
+            ]
+        ]);
+    }
+
+
+
+
+
+    /**
+     * Delete Role
+     */
+
+    public function test_user_role_delete(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+        $role = Role::create([
+            'name' => 'Test_Role'
+        ]);
+
+
+        $response = $this->actingAs($user)->deleteJson(route('roles.destroy', $role->id));
+
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data"
+        ]);
+    }
+
+    /**
+     * Role List
+     */
 
     public function test_user_role_list(): void
     {
         $this->artisan('migrate:fresh --seed');
 
-              
+
         $user = User::factory()
             ->state([
                 'active' => true
@@ -103,13 +140,9 @@ class RoleFeatureTest extends TestCase
 
 
         $response->assertStatus(200);
-            $response->assertJsonStructure([
-                "status",
-                "data"
-            ]);
+        $response->assertJsonStructure([
+            "status",
+            "data"
+        ]);
     }
-
-
-
-
 }
