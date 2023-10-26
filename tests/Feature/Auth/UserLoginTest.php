@@ -12,6 +12,9 @@ class UserLoginTest extends FeatureBaseCase
     public function testUserCanSuccessfullyLogin()
     {
         $user = User::factory()
+            ->state([
+                'active' => true
+            ])
             ->createQuietly();
 
         $response = $this->postJson('/api/v1/login', [
@@ -78,11 +81,41 @@ class UserLoginTest extends FeatureBaseCase
         ], $this->headers);
 
         $inValidPasswordResponse->assertJson([
-            "status" => "failed",
+            "status" => "error",
             "message" => "Invalid Login Credentials"
         ]);
     }
 
+    /**
+     * @test
+     *
+     *
+     */
+    public function testDeactivatedUserCannotLogin()
+    {
+        $user = User::factory()
+            ->sequence([
+                'active' => false
+            ])
+            ->createQuietly();
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'password',
+        ], $this->headers);
+
+        $response->assertStatus(400);
+
+        $response->assertJsonStructure([
+            'status',
+            'message',
+        ]);
+
+        $response->assertJson([
+            'status' => 'error',
+            'message' => "Username has been deactivate!."
+        ]);
+    }
     public static function userLoginData(): array
     {
         return [

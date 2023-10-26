@@ -20,6 +20,7 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="JWT_SECRET" value="naE8jSZlXsuOEKrzz4VPNuGvadpHMWtqttPUoGMAgT6weQQEjeMpI10AiJWxrIxf"/>
         <env name="CACHE_DRIVER" value="array"/>
          <env name="DB_CONNECTION" value="sqlite"/>
          <env name="DB_DATABASE" value=":memory:"/>
