@@ -2,18 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\GraphqlException;
 use App\Http\Controllers\Controller;
 use App\Models\user;
 use Carbon\Carbon;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -28,7 +23,7 @@ class AuthController extends Controller
             ->where('deleted_at', null)
             ->first();
 
-        if ($user->active == false) {
+        if (!$user->active) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Username has been deactivate!.',
@@ -45,7 +40,22 @@ class AuthController extends Controller
             ], 400);
         }
 
+        $user->update([
+            'timezone' => $request->timezone ?? null,
+            'last_login_at' => Carbon::now(),
+            'last_login_ip' => $request->ip ?? $request->getClientIp() ?? "0.0.0.0",
+            'remember_token' => $token,
+        ]);
+
         //logs activity ### Muna please include activity log!
+        activity('User Login')->causedBy(Auth::user()->id)
+            ->performedOn($user)
+            ->withProperties([
+                'ip' => Auth::user()->last_login_ip,
+                'target' => $request->username,
+                'activity' => 'User Login successfully',
+            ])
+            ->log('User Login successfully');
 
 
         return response()->json([
@@ -54,10 +64,56 @@ class AuthController extends Controller
             'data' => [
                 'token' => $token,
                 'user' => $user,
-                'permissions' => [],
+                'permissions' => $this->permissions($user->id),
                 'token_type' => 'Bearer',
             ],
         ], 200);
     }
 
+    //@todo muna please add a unit test to cover this. !IMPORTANT
+    protected function permissions($userId): array|\Throwable|\Exception
+    {
+        try {
+            $permissionAgents = User::with('permissionUser')->select('id')->find($userId)->toArray()['permission_user'][0]['role'][0]['permissions'];
+            $permissions = \Spatie\Permission\Models\Permission::get()->toArray();
+
+            $newPermissions = [];
+            foreach ($permissions as $key => $admin) {
+                $permissionAgent = collect($permissionAgents)->where('id', $admin['id'])->all();
+                $permission = array_values($permissionAgent);
+                if ($permission != []) {
+                    $newPermissions[] = [
+                        'id' => $permission[0]['id'],
+                        'name' => $permission[0]['name'],
+                        'description' => $permission[0]['description'],
+                        'group_by' => $permission[0]['group_by'],
+                        'modul_name' => $permission[0]['modul_name'],
+                        'permission_access' => true,
+                    ];
+                } else {
+                    $newPermissions[] = [
+                        'id' => $admin['id'],
+                        'name' => $admin['name'],
+                        'description' => $admin['description'],
+                        'group_by' => $admin['group_by'],
+                        'modul_name' => $admin['modul_name'],
+                        'permission_access' => false,
+                    ];
+                }
+            }
+
+            $admin = collect($newPermissions)->where('modul_name', 'admin')->groupBy('group_by')->all();
+
+            $data = [
+                'Agent' => [$admin],
+            ];
+
+            return $data;
+        } catch (\Throwable $exception) {
+            logger('permission pulling Error');
+
+            Log::error($exception);
+            return [];
+        }
+    }
 }
