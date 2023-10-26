@@ -14,7 +14,7 @@ class UserLoginTest extends FeatureBaseCase
         $user = User::factory()
             ->createQuietly();
 
-        $response = $this->postJson('/api/v1/login', [
+        $response = $this->postJson(route('login'), [
             'username' => $user->username,
             'password' => 'password',
         ], $this->headers);
