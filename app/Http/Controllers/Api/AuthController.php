@@ -47,7 +47,6 @@ class AuthController extends Controller
             'remember_token' => $token,
         ]);
 
-        //logs activity ### Muna please include activity log!
         activity('User Login')->causedBy(Auth::user()->id)
             ->performedOn($user)
             ->withProperties([
@@ -75,12 +74,11 @@ class AuthController extends Controller
      * @param $userId
      * @return array|array[]
      *
-     * @todo muna please add a unit test to cover this. !IMPORTANT
+     * @todo
      */
     protected function permissions($userId): array
     {
         try {
-            //muna please clean this up
             $permissionAgents = User::with('permissionUser')
                 ->select('id')
                 ->find($userId)

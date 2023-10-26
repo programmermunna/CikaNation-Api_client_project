@@ -159,4 +159,28 @@ class UserLoginTest extends FeatureBaseCase
             ]
         ];
     }
+
+    public function testUserRolePermission()
+    {
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'password',
+        ], $this->headers);
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'status' => 'success',
+            'data' => [
+                'permissions' => [],
+            ]
+        ]);
+
+    }
 }
