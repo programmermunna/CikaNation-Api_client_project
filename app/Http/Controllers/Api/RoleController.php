@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -15,7 +16,10 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json([
+            'status' => 'success',
+            'data'   => Role::all(),
+        ], 200);
     }
 
 
@@ -31,8 +35,8 @@ class RoleController extends Controller
         ]);
 
         DB::beginTransaction();
-        
-        try{
+
+        try {
 
             $role = Role::create([
                 'name' => $request->name,
@@ -41,14 +45,14 @@ class RoleController extends Controller
             $role->permissions()->sync(@$request->permissions ?? []);
 
             activity("Role created")
-            ->causedBy(auth()->user())
-            ->performedOn($role)
-            ->withProperties([
-                'ip' => Auth::user()->last_login_ip,
-                'activity' => "Role created successfully",
-                'target' => "$role->name",
-            ])
-            ->log(":causer.name created Role $role->name.");
+                ->causedBy(auth()->user())
+                ->performedOn($role)
+                ->withProperties([
+                    'ip' => Auth::user()->last_login_ip,
+                    'activity' => "Role created successfully",
+                    'target' => "$role->name",
+                ])
+                ->log(":causer.name created Role $role->name.");
 
             DB::commit();
 
@@ -56,17 +60,14 @@ class RoleController extends Controller
                 'status' => 'success',
                 'message' => 'Successfully Role Created!!',
                 'data' => $role,
-            ],200);
-
-        }catch(\Exception $error){
+            ], 200);
+        } catch (\Exception $error) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $error->getMessage(),
-            ],500);
+            ], 500);
         }
-
-
     }
 
     /**
@@ -81,9 +82,54 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Role $role)
     {
-        //
+        $request->validate([
+            'name'          => [
+                'required',
+                'string',
+                Rule::unique('roles')->ignore($role->id)
+            ],
+            'permissions'   => 'required|array',
+            'permissions.*' => 'exists:permissions,id'
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $role->update([
+                'name' => $request->name,
+            ]);
+
+            $role->permissions()->detach();
+
+            $role->permissions()->sync(@$request->permissions ?? []);
+
+            activity("Role updated")
+                ->causedBy(auth()->user())
+                ->performedOn($role)
+                ->withProperties([
+                    'ip' => Auth::user()->last_login_ip,
+                    'activity' => "Role updated successfully",
+                    'target' => "$role->name",
+                ])
+                ->log(":causer.name created Role $role->name.");
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully Role Updated!!',
+                'data' => $role,
+            ], 200);
+        } catch (\Exception $error) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -91,6 +137,44 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+
+
+            $role = Role::findOrFail($id);
+
+            $role->permissions()->detach();
+
+
+            activity("Role deleted")
+                ->causedBy(auth()->user())
+                ->performedOn($role)
+                ->withProperties([
+                    'ip' => Auth::user()->last_login_ip,
+                    'activity' => "Role deleted successfully",
+                    'target' => "$role->name",
+                ])
+                ->log(":causer.name deleted Role $role->name.");
+
+
+
+            Role::where('id', $id)->delete();
+
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully Role Updated!!',
+                'data' => $role,
+            ], 200);
+        } catch (\Exception $error) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage(),
+                'data' => $role,
+            ], 200);
+        }
     }
 }
