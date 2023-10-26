@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class RoleFeatureTest extends TestCase
 {
@@ -40,6 +41,30 @@ class RoleFeatureTest extends TestCase
                     "created_at",
                     "id",
                 ]
+            ]);
+    }
+
+
+
+    public function test_user_role_list(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+              
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+        $response = $this->actingAs($user)->getJson(route('roles.index'));
+
+
+        $response->assertStatus(200);
+            $response->assertJsonStructure([
+                "status",
+                "data"
             ]);
     }
 
