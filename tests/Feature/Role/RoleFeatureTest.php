@@ -45,6 +45,47 @@ class RoleFeatureTest extends TestCase
     }
 
 
+    /**
+     * Update Role
+     */
+
+     public function test_user_role_update(): void
+     {
+         $this->artisan('migrate:fresh --seed');
+               
+         $user = User::factory()
+             ->state([
+                 'active' => true
+             ])
+             ->createQuietly();
+
+
+        $role = Role::create([
+            'name' => 'Test_Role'
+        ]);
+ 
+ 
+         $response = $this->actingAs($user)->putJson(route('roles.update', $role->id), [
+             'name' => Str::random(10),
+             'permissions' => [1, 2, 3]
+         ]);
+ 
+ 
+         $response->assertStatus(200);
+             $response->assertJsonStructure([
+                 "status",
+                 "message",
+                 "data" => [
+                     "guard_name",
+                     "name",
+                     "updated_at",
+                     "created_at",
+                     "id",
+                 ]
+             ]);
+     }
+
+
 
     public function test_user_role_list(): void
     {
