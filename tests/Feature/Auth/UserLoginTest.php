@@ -17,7 +17,7 @@ class UserLoginTest extends FeatureBaseCase
             ])
             ->createQuietly();
 
-        $response = $this->postJson(route('login'), [
+        $response = $this->postJson('/api/v1/login', [
             'username' => $user->username,
             'password' => 'password',
         ], $this->headers);
