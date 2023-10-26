@@ -29,9 +29,25 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+
+            /**
+             * All api's routes are goes here
+             */
+            
             Route::middleware('api')
                 ->prefix('api')
+                ->prefix(config('app.api_version'))
                 ->group(base_path('routes/api.php'));
+
+            /**
+             * Authentication routes goes here
+             */
+            Route::middleware('api')
+                ->prefix('api')
+                ->prefix(config('app.api_version'))
+                ->group(base_path('routes/auth.php'));
+
+
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
