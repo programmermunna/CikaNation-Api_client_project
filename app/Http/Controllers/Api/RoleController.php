@@ -82,13 +82,14 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Role $role)
+    public function update(Request $request, $id)
     {
+        
         $request->validate([
             'name'          => [
                 'required',
                 'string',
-                Rule::unique('roles')->ignore($role->id)
+                Rule::unique('roles')->ignore($id)
             ],
             'permissions'   => 'required|array',
             'permissions.*' => 'exists:permissions,id'
@@ -97,6 +98,12 @@ class RoleController extends Controller
         DB::beginTransaction();
 
         try {
+
+            $role = Role::find($id);
+            
+            if(!$role){
+                throw new \Exception('No role found',404);
+            }
 
             $role->update([
                 'name' => $request->name,
@@ -173,8 +180,7 @@ class RoleController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $error->getMessage(),
-                'data' => $role,
-            ], 200);
+            ], 500);
         }
     }
 }
