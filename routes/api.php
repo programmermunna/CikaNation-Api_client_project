@@ -1,10 +1,16 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\RoleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('api')->prefix('v1')->group(function () {
-        Route::post('/login', [AuthController::class, 'login']);
+//auth
 
+
+Route::group(['middleware' => ['auth:api']], function () {
+    /**
+     * Roles route goes here as resources route
+     */
+    Route::resource('roles',RoleController::class);
 });

@@ -11,22 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('admin_ips', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('username')->unique('username');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->boolean('active')->default(true);
-            $table->string('last_login_ip')->nullable();
-            $table->string('timezone')->nullable();
-            $table->rememberToken();
+            $table->string('ip_address')->comment('user ip address');
+            $table->string('description')->nullable()->comment('ip address description');
+            $table->boolean('whitelisted')->default(1)->comment('0= not listed, 1= listed');
             $table->timestamps();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
-            $table->timestamp('last_login_at')->useCurrent();
             $table->softDeletes();
         });
     }
@@ -36,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('admin_ips');
     }
 };

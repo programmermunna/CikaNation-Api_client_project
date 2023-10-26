@@ -145,6 +145,12 @@ return [
     ],
 
     /*
+    * API Route Prefix as Version v1,v2,v3
+    */
+
+    'api_version' => env('API_VERSION','v1'),
+
+    /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
@@ -169,6 +175,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class
+
+        Spatie\Permission\PermissionServiceProvider::class,
+
     ])->toArray(),
 
     /*
