@@ -78,7 +78,7 @@ class UserLoginTest extends FeatureBaseCase
         ], $this->headers);
 
         $inValidPasswordResponse->assertJson([
-            "status" => "failed",
+            "status" => "error",
             "message" => "Invalid Login Credentials"
         ]);
     }
