@@ -49,7 +49,7 @@ class RoleFeatureTest extends TestCase
      * Update Role
      */
 
-     public function test_user_role_update(): void
+     public function testUserRoleUpdate(): void
      {
          $this->artisan('migrate:fresh --seed');
                
