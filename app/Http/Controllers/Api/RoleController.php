@@ -42,7 +42,7 @@ class RoleController extends Controller
                 'name' => $request->name,
             ]);
 
-            $role->permissions()->sync(@$request->permissions ?? []);
+            $role->permissions()->sync($request->permissions ?? []);
 
             activity("Role created")
                 ->causedBy(auth()->user())
@@ -111,7 +111,7 @@ class RoleController extends Controller
 
             $role->permissions()->detach();
 
-            $role->permissions()->sync(@$request->permissions ?? []);
+            $role->permissions()->sync($request->permissions ?? []);
 
             activity("Role updated")
                 ->causedBy(auth()->user())
@@ -171,9 +171,9 @@ class RoleController extends Controller
             DB::commit();
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Successfully Role Updated!!',
-                'data' => $role,
+                'status'  => 'success',
+                'message' => 'Successfully Role Deleted!!',
+                'data'    => $role,
             ], 200);
         } catch (\Exception $error) {
             DB::rollBack();
