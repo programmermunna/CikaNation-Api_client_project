@@ -13,7 +13,7 @@ class RoleFeatureTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_user_role_creation(): void
+    public function testUserRoleCreation(): void
     {
         $this->artisan('migrate:fresh --seed');
 
@@ -49,7 +49,7 @@ class RoleFeatureTest extends TestCase
      * Update Role
      */
 
-    public function test_user_role_update(): void
+    public function testUserRoleUpdate(): void
     {
         $this->artisan('migrate:fresh --seed');
 
@@ -93,7 +93,7 @@ class RoleFeatureTest extends TestCase
      * Delete Role
      */
 
-    public function test_user_role_delete(): void
+    public function testUserRoleDelete(): void
     {
         $this->artisan('migrate:fresh --seed');
 
