@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
+use Illuminate\Testing\Fluent\AssertableJson;
+
 
 class RoleFeatureTest extends TestCase
 {
@@ -124,7 +126,7 @@ class RoleFeatureTest extends TestCase
      * Role List
      */
 
-    public function test_user_role_list(): void
+    public function tesUserRoleList(): void
     {
         $this->artisan('migrate:fresh --seed');
 
@@ -136,13 +138,29 @@ class RoleFeatureTest extends TestCase
             ->createQuietly();
 
 
+        $role = Role::create(['name' => 'Admin']);
+        $role->permissions()->sync([1, 2, 3]);
+
+
         $response = $this->actingAs($user)->getJson(route('roles.index'));
 
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            "status",
-            "data"
-        ]);
+
+        $response->assertJson(function (AssertableJson $json) {
+            $json->has('status')
+                ->has('data')
+                ->has(
+                    'data.0',
+                    fn (AssertableJson $json) =>
+                    $json->has('id')
+                        ->has('name')
+                        ->has('created_at')
+                        ->has('updated_at')
+                        ->etc()
+                );
+        });
+
+        
     }
 }
