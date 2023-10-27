@@ -12,7 +12,7 @@ class RoleFeatureTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_user_role_creation(): void
+    public function testUserRoleCreation(): void
     {
         $this->artisan('migrate:fresh --seed');
               
