@@ -42,7 +42,7 @@ class RoleController extends Controller
                 'name' => $request->name,
             ]);
 
-            $role->permissions()->sync(@$request->permissions ?? []);
+            $role->permissions()->sync($request->permissions ?? []);
 
             activity("Role created")
                 ->causedBy(auth()->user())
@@ -111,7 +111,7 @@ class RoleController extends Controller
 
             $role->permissions()->detach();
 
-            $role->permissions()->sync(@$request->permissions ?? []);
+            $role->permissions()->sync($request->permissions ?? []);
 
             activity("Role updated")
                 ->causedBy(auth()->user())
