@@ -122,6 +122,36 @@ class UserLoginTest extends FeatureBaseCase
     {
         $this->artisan('migrate:fresh --seed');
 
+        $user     = User::where('username', 'test')->first();
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => '12345678',
+        ], $this->headers);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'permissions' => [
+                    '*' => [
+                        'id',
+                        'name',
+                        'guard_name',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ],
+            ],
+        ]);
+    }
+
+
+
+    public function testUserHasNoPermission()
+    {
+        $this->artisan('migrate:fresh --seed');
+
         $user = User::first();
 
         $response = $this->postJson('/api/v1/login', [
@@ -131,27 +161,11 @@ class UserLoginTest extends FeatureBaseCase
 
         $response->assertStatus(200);
 
-        if ($response->json('data.permissions')) {
-            $response->assertJsonStructure([
-                'data' => [
-                    'permissions' => [
-                        '*' => [
-                            'id',
-                            'name',
-                            'guard_name',
-                            'created_at',
-                            'updated_at'
-                        ]
-                    ],
-                ],
-            ]);
-        }else{
-            $response->assertJsonStructure([
-                'data' => [
-                    'permissions' => [],
-                ]
-            ]);
-        }
+        $response->assertJsonStructure([
+            'data' => [
+                'permissions' => [],
+            ]
+        ]);
     }
 
 
