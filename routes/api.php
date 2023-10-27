@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => ['auth:api']], function () {
-    /**
-     * Roles route goes here as resources route
-     */
+    Route::post('/login', [AuthController::class, 'login']);
     Route::resource('roles',RoleController::class);
 });
