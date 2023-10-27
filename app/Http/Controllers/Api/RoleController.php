@@ -171,9 +171,9 @@ class RoleController extends Controller
             DB::commit();
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Successfully Role Updated!!',
-                'data' => $role,
+                'status'  => 'success',
+                'message' => 'Successfully Role Deleted!!',
+                'data'    => $role,
             ], 200);
         } catch (\Exception $error) {
             DB::rollBack();
