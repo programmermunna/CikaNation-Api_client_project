@@ -48,7 +48,7 @@ class RoleFeatureTest extends TestCase
 
 
 
-    public function test_user_role_list(): void
+    public function tesUserRoleList(): void
     {
         $this->artisan('migrate:fresh --seed');
 
