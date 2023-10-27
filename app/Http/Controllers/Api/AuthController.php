@@ -84,7 +84,7 @@ class AuthController extends Controller
                 ->find($userId)
                 ->toArray()['permission_user'][0]['role'][0]['permissions'];
 
-            $permissions = \Spatie\Permission\Models\Permission::get()->toArray();
+           return $permissions = \Spatie\Permission\Models\Permission::get()->toArray();
 
             $newPermissions = [];
             foreach ($permissions as $key => $admin) {

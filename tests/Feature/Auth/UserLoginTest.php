@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Http\Controllers\Api\AuthController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\FeatureBaseCase;
@@ -162,25 +163,41 @@ class UserLoginTest extends FeatureBaseCase
 
     public function testUserRolePermission()
     {
-        $user = User::factory()
-            ->state([
-                'active' => true
-            ])
-            ->createQuietly();
 
-        $response = $this->postJson('/api/v1/login', [
-            'username' => $user->username,
-            'password' => 'password',
-        ], $this->headers);
+        // $user = User::factory()
+        //     ->sequence([
+        //         'active' => true
+        //     ])
+        //     ->createQuietly();
 
-        $response->assertStatus(200);
+        // $permissions_check = $user->data->permission(1);
 
-        $response->assertJson([
-            'status' => 'success',
-            'data' => [
-                'permissions' => [],
-            ]
-        ]);
+        // $response = $this->postJson('/api/v1/login', [
+        //     'username' => $user->username,
+        //     'password' => 'password',
+        // ], $this->headers);
+
+        // // $response->assertSee('permissions');
+        // $response->assertFound($permissions_check);
+
+        // $response->assertStatus(200);
+
+        // $response->assertJsonStructure([
+        //     'status',
+        //     'message',
+        //     'data'
+        // ]);
+
+        $permissions = new AuthController();
+        $permission = $permissions->permissions(1);
+
+        $this->assertEquals('permission', $permission);
+
+        // $permissions->assertSee();
+
+
+
+
 
     }
 }
