@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
+use Illuminate\Testing\Fluent\AssertableJson;
+
 
 class RoleFeatureTest extends TestCase
 {
@@ -16,7 +18,7 @@ class RoleFeatureTest extends TestCase
     public function test_user_role_creation(): void
     {
         $this->artisan('migrate:fresh --seed');
-              
+
         $user = User::factory()
             ->state([
                 'active' => true
@@ -31,17 +33,17 @@ class RoleFeatureTest extends TestCase
 
 
         $response->assertStatus(200);
-            $response->assertJsonStructure([
-                "status",
-                "message",
-                "data" => [
-                    "guard_name",
-                    "name",
-                    "updated_at",
-                    "created_at",
-                    "id",
-                ]
-            ]);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data" => [
+                "guard_name",
+                "name",
+                "updated_at",
+                "created_at",
+                "id",
+            ]
+        ]);
     }
 
 
@@ -50,7 +52,7 @@ class RoleFeatureTest extends TestCase
     {
         $this->artisan('migrate:fresh --seed');
 
-              
+
         $user = User::factory()
             ->state([
                 'active' => true
@@ -58,17 +60,29 @@ class RoleFeatureTest extends TestCase
             ->createQuietly();
 
 
+        $role = Role::create(['name' => 'Admin']);
+        $role->permissions()->sync([1, 2, 3]);
+
+
         $response = $this->actingAs($user)->getJson(route('roles.index'));
 
 
         $response->assertStatus(200);
-            $response->assertJsonStructure([
-                "status",
-                "data"
-            ]);
+
+        $response->assertJson(function (AssertableJson $json) {
+            $json->has('status')
+                ->has('data')
+                ->has(
+                    'data.0',
+                    fn (AssertableJson $json) =>
+                    $json->has('id')
+                        ->has('name')
+                        ->has('created_at')
+                        ->has('updated_at')
+                        ->etc()
+                );
+        });
+
+        
     }
-
-
-
-
 }
