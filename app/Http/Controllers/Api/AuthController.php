@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
 
 class AuthController extends Controller
 {
@@ -56,7 +57,6 @@ class AuthController extends Controller
             ])
             ->log('User Login successfully');
 
-
         return response()->json([
             'message' => 'Login Successful',
             'status' => 'success',
@@ -69,60 +69,10 @@ class AuthController extends Controller
         ], 200);
     }
 
-    /**
-     *
-     * @param $userId
-     * @return array|array[]
-     *
-     * @todo
-     */
-    protected function permissions($userId): array
+
+    protected function permissions($userId)
     {
-        try {
-            $permissionAgents = User::with('permissionUser')
-                ->select('id')
-                ->find($userId)
-                ->toArray()['permission_user'][0]['role'][0]['permissions'];
-
-           return $permissions = \Spatie\Permission\Models\Permission::get()->toArray();
-
-            $newPermissions = [];
-            foreach ($permissions as $key => $admin) {
-                $permissionAgent = collect($permissionAgents)->where('id', $admin['id'])->all();
-                $permission = array_values($permissionAgent);
-                if ($permission != []) {
-                    $newPermissions[] = [
-                        'id' => $permission[0]['id'],
-                        'name' => $permission[0]['name'],
-                        'description' => $permission[0]['description'],
-                        'group_by' => $permission[0]['group_by'],
-                        'modul_name' => $permission[0]['modul_name'],
-                        'permission_access' => true,
-                    ];
-                } else {
-                    $newPermissions[] = [
-                        'id' => $admin['id'],
-                        'name' => $admin['name'],
-                        'description' => $admin['description'],
-                        'group_by' => $admin['group_by'],
-                        'modul_name' => $admin['modul_name'],
-                        'permission_access' => false,
-                    ];
-                }
-            }
-
-            $admin = collect($newPermissions)->where('modul_name', 'user')->groupBy('group_by')->all();
-
-            $data = [
-                'User' => [$admin],
-            ];
-
-            return $data;
-        } catch (\Throwable $exception) {
-            logger('permission pulling Error');
-
-            Log::error($exception);
-            return [];
-        }
+        $permissionsUser = User::with('permissions')->find($userId);
+        return $permissionsUser->permissions;
     }
 }

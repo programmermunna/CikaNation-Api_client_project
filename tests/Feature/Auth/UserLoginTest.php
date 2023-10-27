@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Http\Controllers\Api\AuthController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\FeatureBaseCase;
@@ -117,6 +116,46 @@ class UserLoginTest extends FeatureBaseCase
             'message' => "Username has been deactivate!."
         ]);
     }
+
+
+    public function testUserHasPermission()
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::first();
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'password',
+        ], $this->headers);
+
+        $response->assertStatus(200);
+
+        if ($response->json('data.permissions')) {
+            $response->assertJsonStructure([
+                'data' => [
+                    'permissions' => [
+                        '*' => [
+                            'id',
+                            'name',
+                            'guard_name',
+                            'created_at',
+                            'updated_at'
+                        ]
+                    ],
+                ],
+            ]);
+        }else{
+            $response->assertJsonStructure([
+                'data' => [
+                    'permissions' => [],
+                ]
+            ]);
+        }
+    }
+
+
+
     public static function userLoginData(): array
     {
         return [
@@ -159,45 +198,5 @@ class UserLoginTest extends FeatureBaseCase
                 ]
             ]
         ];
-    }
-
-    public function testUserRolePermission()
-    {
-
-        // $user = User::factory()
-        //     ->sequence([
-        //         'active' => true
-        //     ])
-        //     ->createQuietly();
-
-        // $permissions_check = $user->data->permission(1);
-
-        // $response = $this->postJson('/api/v1/login', [
-        //     'username' => $user->username,
-        //     'password' => 'password',
-        // ], $this->headers);
-
-        // // $response->assertSee('permissions');
-        // $response->assertFound($permissions_check);
-
-        // $response->assertStatus(200);
-
-        // $response->assertJsonStructure([
-        //     'status',
-        //     'message',
-        //     'data'
-        // ]);
-
-        $permissions = new AuthController();
-        $permission = $permissions->permissions(1);
-
-        $this->assertEquals('permission', $permission);
-
-        // $permissions->assertSee();
-
-
-
-
-
     }
 }
