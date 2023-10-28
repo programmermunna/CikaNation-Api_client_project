@@ -136,4 +136,36 @@ class AnnouncementTest extends FeatureBaseCase
             ]
         ]);
     }
+
+
+    /**
+     * Delete announcement
+     */
+
+    public function testAnnouncementDelete(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+
+        $response = $this->actingAs($user)->deleteJson(route('announcements.destroy'), [
+            "announcements" => [1,2,3,4]
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            "status",
+            "message",
+        ]);
+    }
+
+
+
 }
