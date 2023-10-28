@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -62,7 +63,7 @@ class AuthController extends Controller
             'status' => 'success',
             'data' => [
                 'token' => $token,
-                'user' => $user,
+                'user' => new UserResource($user),
                 'permissions' => $this->permissions($user->id),
                 'token_type' => 'Bearer',
             ],
