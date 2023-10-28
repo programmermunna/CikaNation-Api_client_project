@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\FeatureBaseCase;
 
 class UserLoginTest extends FeatureBaseCase
@@ -126,6 +127,30 @@ class UserLoginTest extends FeatureBaseCase
             ])
             ->createQuietly();
 
+        $role = Role::create([
+            'name' => 'Administrator'
+        ]);
+
+        $permissions = [
+            [
+                'name' => 'View',
+                'guard_name' => 'web',
+            ],
+            [
+                'name' => 'Create',
+                'guard_name' => 'web',
+            ],
+            [
+                'name' => 'Show',
+                'guard_name' => 'web',
+            ]
+        ];
+
+        $role->permissions()->createMany($permissions);
+
+        $user->assignRole($role);
+        $user->permissions()->sync($role->permissions->pluck('id'));
+
         $response = $this->postJson('/api/v1/login', [
             'username' => $user->username,
             'password' => 'password',
@@ -146,6 +171,8 @@ class UserLoginTest extends FeatureBaseCase
                 ],
             ],
         ]);
+
+        $response->assertJsonCount($role->permissions->count(), 'data.permissions');
     }
 
 
@@ -153,10 +180,10 @@ class UserLoginTest extends FeatureBaseCase
     public function testUserHasNoPermission()
     {
         $user = User::factory()
-        ->sequence([
-            'active' => true
-        ])
-        ->createQuietly();
+            ->sequence([
+                'active' => true
+            ])
+            ->createQuietly();
 
         $response = $this->postJson('/api/v1/login', [
             'username' => $user->username,
@@ -166,6 +193,12 @@ class UserLoginTest extends FeatureBaseCase
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
+            'data' => [
+                'permissions' => [],
+            ],
+        ]);
+
+        $response->assertJson([
             'data' => [
                 'permissions' => [],
             ],
