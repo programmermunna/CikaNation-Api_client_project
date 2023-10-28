@@ -13,6 +13,15 @@ use Illuminate\Validation\ValidationException;
 
 class UserIpController extends Controller
 {
+
+    public function index()
+    {
+        return response()->json([
+            'status' => 'success',
+            'data'   => UserIp::all(),
+        ], 200);
+    }
+
     public function store(Request $request)
     {
 
@@ -94,7 +103,7 @@ class UserIpController extends Controller
                 'status' => 'successful',
                 'message' => 'User Ip Created Successfully',
                 'data' => $model,
-            ]);
+            ],200);
 
         } catch (\Exception$e) {
             Log::error($e);

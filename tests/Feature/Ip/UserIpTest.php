@@ -3,6 +3,7 @@
 namespace Tests\Feature\Ip;
 
 use App\Models\User;
+use App\Models\UserIp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -12,6 +13,39 @@ class UserIpTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * User Ip List
+     */
+    public function testUserIpList(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+            UserIp::create([
+                'ip_address' => '103.15.245.75',
+                'description' => 'munna Ip',
+                'whitelisted' => 1,
+                'created_by' => 2,
+            ]);
+
+
+        $response = $this->actingAs($user)->getJson('/api/v1/user-ip');
+
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'status' => true,
+            'data' => true
+        ]);
+
+
+    }
 
     /**
      * User Ip Creation
