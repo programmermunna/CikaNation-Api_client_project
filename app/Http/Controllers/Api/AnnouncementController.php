@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\DB;
 
 class AnnouncementController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        return response()->json([
+            'status' => 'success',
+            'data'   => Announcement::latest()->filter($request)->paginate(20),
+        ], 200);
+    }
     
     /**
      * Store a newly created resource in storage.

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Announcement;
 
 use App\Models\User;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\FeatureBaseCase;
 
 class AnnouncementTest extends FeatureBaseCase
@@ -22,8 +23,8 @@ class AnnouncementTest extends FeatureBaseCase
 
 
         $response = $this->actingAs($user)->postJson(route('announcements.store'), [
-            'message' => 'Dummy text for announcement message' ,
-            'status' => rand(0,1)
+            'message' => 'Dummy text for announcement message',
+            'status' => rand(0, 1)
         ]);
 
 
@@ -40,6 +41,58 @@ class AnnouncementTest extends FeatureBaseCase
                 "created_at",
                 "created_by",
             ]
+        ]);
+    }
+
+
+    public function testAnnouncementList(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+        $response = $this->actingAs($user)->getJson(route('announcements.index'));
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'status',
+            'data' => [
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'message',
+                        'status',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ],
+                'first_page_url',
+                'from',
+                'last_page',
+                'last_page_url',
+                'links' => [
+                    '*' => [
+                        'url',
+                        'label',
+                        'active'
+                    ]
+                ],
+                'next_page_url',
+                'path',
+                'per_page',
+                'prev_page_url',
+                'to',
+                'total',
+            ],
+
         ]);
     }
 }
