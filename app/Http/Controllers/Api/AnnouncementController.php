@@ -68,4 +68,49 @@ class AnnouncementController extends Controller
         }
     }
 
+     /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Announcement $announcement)
+    {
+        $request->validate([
+            'message' => 'required|string|max:255',
+            'status'  => 'required|boolean',
+        ]);
+
+        DB::beginTransaction();
+        try {
+
+            $announcement->update([
+                'message'    => $request->message,
+                'status'     => $request->status,
+            ]);
+
+            activity("Announcement updated")
+                ->causedBy(auth()->user())
+                ->performedOn($announcement)
+                ->withProperties([
+                    'ip'       => Auth::user()->last_login_ip,
+                    'activity' => "Announcement updated successfully",
+                    'target'   => "$announcement->message",
+                ])
+                ->log(":causer.name updated Announcement $announcement->message.");
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Successfully Announcement Updated!!',
+                'data'    => $announcement,
+            ], 200);
+        } catch (\Exception $error) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage(),
+            ], 500);
+        }
+    }
+
+
 }
