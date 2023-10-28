@@ -3,12 +3,9 @@
 namespace Tests\Feature\Announcement;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Str;
-use Tests\TestCase;
+use Tests\FeatureBaseCase;
 
-class AnnouncementTest extends TestCase
+class AnnouncementTest extends FeatureBaseCase
 {
     /**
      * Annuncement Create test example
