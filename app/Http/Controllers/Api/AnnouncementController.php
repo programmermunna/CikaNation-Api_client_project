@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\UpdateAnnouncementRequest;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,9 @@ class AnnouncementController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+    private array $updatedInstance = [];
+
     public function index(Request $request)
     {
         return response()->json([
@@ -69,40 +73,45 @@ class AnnouncementController extends Controller
     }
 
      /**
-     * Update the specified resource in storage.
+     * Update Multiple Records.
      */
-    public function update(Request $request, Announcement $announcement)
+    public function update(UpdateAnnouncementRequest $request)
     {
-        $request->validate([
-            'message' => 'required|string|max:255',
-            'status'  => 'required|boolean',
-        ]);
-
+        
         DB::beginTransaction();
         try {
+            
+            foreach($request->announcements as $attribute){
+                $announcement = Announcement::find($attribute['id']);
+                $announcement->update([
+                    'message' => $attribute['message'],
+                    'status'  => $attribute['status'],
+                ]);
 
-            $announcement->update([
-                'message'    => $request->message,
-                'status'     => $request->status,
-            ]);
+                $this->updatedInstance[] = $announcement;
 
-            activity("Announcement updated")
+
+                activity("Announcement updated")
                 ->causedBy(auth()->user())
                 ->performedOn($announcement)
                 ->withProperties([
-                    'ip'       => Auth::user()->last_login_ip,
+                    'ip' => Auth::user()->last_login_ip,
                     'activity' => "Announcement updated successfully",
-                    'target'   => "$announcement->message",
+                    'target' => "$announcement->message",
                 ])
                 ->log(":causer.name updated Announcement $announcement->message.");
+            }
+            
+
 
             DB::commit();
 
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Successfully Announcement Updated!!',
-                'data'    => $announcement,
+                'data'    => $this->updatedInstance
             ], 200);
+
         } catch (\Exception $error) {
             DB::rollBack();
             return response()->json([

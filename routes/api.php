@@ -14,5 +14,7 @@ Route::group(['middleware' => ['auth:api']], function () {
      * Roles route goes here as resources route
      */
     Route::resource('roles',RoleController::class);
-    Route::resource('announcements',AnnouncementController::class);
+    Route::get('announcements',[AnnouncementController::class,'index'])->name('announcements.index');
+    Route::post('announcements',[AnnouncementController::class,'store'])->name('announcements.store');
+    Route::put('announcements',[AnnouncementController::class,'update'])->name('announcements.update');
 });

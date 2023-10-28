@@ -101,38 +101,39 @@ class AnnouncementTest extends FeatureBaseCase
      * Announcement update
      */
 
-     public function testAnnouncementUpdate(): void
-     {
-         $this->artisan('migrate:fresh --seed');
- 
-         $user = User::factory()
-             ->state([
-                 'active' => true
-             ])
-             ->createQuietly();
+    public function testAnnouncementUpdate(): void
+    {
+        $this->artisan('migrate:fresh --seed');
 
-        $announcement = Announcement::factory()->createQuietly();
- 
- 
-         $response = $this->actingAs($user)->putJson(route('announcements.update',$announcement->id), [
-             'message' => 'Dummy text for announcement message',
-             'status' => rand(0, 1)
-         ]);
- 
- 
-         $response->assertStatus(200);
-         $response->assertJsonStructure([
-             "status",
-             "message",
-             "data" => [
-                 "id",
-                 "message",
-                 "number",
-                 "status",
-                 "updated_at",
-                 "created_at",
-                 "created_by",
-             ]
-         ]);
-     }
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+        $announcements = Announcement::factory(5)->createQuietly();
+
+
+        $response = $this->actingAs($user)->putJson(route('announcements.update'), [
+            "announcements" => $announcements
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data" => [
+                '*' => [
+                    "id",
+                    "message",
+                    "number",
+                    "status",
+                    "updated_at",
+                    "created_at",
+                    "created_by",
+                ]
+            ]
+        ]);
+    }
 }
