@@ -116,6 +116,64 @@ class UserLoginTest extends FeatureBaseCase
             'message' => "Username has been deactivate!."
         ]);
     }
+
+
+    public function testUserHasPermission()
+    {
+        $user = User::factory()
+            ->sequence([
+                'active' => true
+            ])
+            ->createQuietly();
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'password',
+        ], $this->headers);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'permissions' => [
+                    '*' => [
+                        'id',
+                        'name',
+                        'guard_name',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ],
+            ],
+        ]);
+    }
+
+
+
+    public function testUserHasNoPermission()
+    {
+        $user = User::factory()
+        ->sequence([
+            'active' => true
+        ])
+        ->createQuietly();
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'password',
+        ], $this->headers);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'permissions' => [],
+            ],
+        ]);
+    }
+
+
+
     public static function userLoginData(): array
     {
         return [
@@ -158,29 +216,5 @@ class UserLoginTest extends FeatureBaseCase
                 ]
             ]
         ];
-    }
-
-    public function testUserRolePermission()
-    {
-        $user = User::factory()
-            ->state([
-                'active' => true
-            ])
-            ->createQuietly();
-
-        $response = $this->postJson('/api/v1/login', [
-            'username' => $user->username,
-            'password' => 'password',
-        ], $this->headers);
-
-        $response->assertStatus(200);
-
-        $response->assertJson([
-            'status' => 'success',
-            'data' => [
-                'permissions' => [],
-            ]
-        ]);
-
     }
 }
