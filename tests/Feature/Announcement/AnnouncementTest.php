@@ -35,12 +35,13 @@ class AnnouncementTest extends TestCase
             "status",
             "message",
             "data" => [
+                "id",
                 "message",
                 "number",
+                "status",
                 "updated_at",
                 "created_at",
                 "created_by",
-                "id",
             ]
         ]);
     }
