@@ -2,10 +2,15 @@
 
 namespace Tests\Feature\Announcement;
 
+use App\Events\AnnouncementEvent;
+use App\Listeners\AnnouncementListener;
 use App\Models\Announcement;
 use App\Models\User;
+use Database\Factories\UserFactory;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\FeatureBaseCase;
+use Illuminate\Support\Facades\Event;
+
 
 class AnnouncementTest extends FeatureBaseCase
 {
@@ -136,4 +141,39 @@ class AnnouncementTest extends FeatureBaseCase
             ]
         ]);
     }
+
+    /**
+     * Event attached to listener
+     */
+    public function testListenerIsAttachedToEvent()
+    {
+        Event::fake();
+        Event::assertListening(
+            AnnouncementEvent::class,
+            AnnouncementListener::class
+        );
+    }
+
+
+    /**
+     * Announcement Event test
+     */
+
+     public function testAnnouncementCanBeNotify(): void
+     {
+         Event::fake([
+            AnnouncementEvent::class
+         ]);
+  
+         $payload = [
+            'message' => 'test message',
+            'status' => 1,
+         ];
+
+         $user = User::factory()->create();
+
+         $response = $this->actingAs($user)->postJson(route('announcements.store'), $payload);
+         
+         Event::assertDispatched(AnnouncementEvent::class);                                                                      
+     }     
 }

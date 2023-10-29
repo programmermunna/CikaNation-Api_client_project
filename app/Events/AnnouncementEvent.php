@@ -38,8 +38,5 @@ class AnnouncementEvent
         ];
     }
 
-    public function broadcastAs()
-    {
-        return 'AgentSocket-Event-AnnouncementAgent-Update';
-    }
+    
 }
