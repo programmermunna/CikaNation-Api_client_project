@@ -121,7 +121,6 @@ class UserIpTest extends TestCase
             'description' => 'testing updated descriptoin',
         ]);
 
-
         $response->assertStatus(200);
         $response->assertJsonStructure([
             "status",
@@ -144,6 +143,44 @@ class UserIpTest extends TestCase
             'status' => true,
             'message' => true,
             'data' => true
+        ]);
+    }
+    /**
+     * User Ip Delete
+     */
+    public function test_userIpDelete(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+           $userIp = UserIp::create([
+                'ip_address' => '103.15.245.74',
+                'whitelisted' => 1,
+                'description' => 'testing ip update',
+                'created_by' => 1,
+                'created_at' => now(),
+            ]);
+
+
+        $response = $this->actingAs($user)->DeleteJson('/api/v1/user-ip/'.$userIp->id.'');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data",
+        ]);
+
+        $response->assertJson([
+            'status' => true,
+            'message' => true,
+            'data' => false
         ]);
     }
 }

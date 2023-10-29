@@ -219,4 +219,41 @@ class UserIpController extends Controller
             throw ValidationException::withMessages([$e->getMessage()]);
         }
     }
+
+
+    public function destroy($id)
+    {
+        try {
+            $userIp = UserIp::find($id);
+
+            if (!$userIp) {
+                throw ValidationException::withMessages(["Ip With Id $id Not Found"]);
+            }
+
+            $userIp->update([
+                'deleted_by' => Auth::user()->id,
+                'deleted_at' => now(),
+            ]);
+
+            activity('user_ip')->causedBy(Auth::user()->id)
+                ->performedOn($userIp)
+                ->withProperties([
+                    'ip' => Auth::user()->last_login_ip,
+                    'target' => $userIp->ip_address,
+                    'activity' => 'Deleted user ip',
+                ])
+                ->log('Successfully');
+
+            $userIp->delete();
+
+            return response()->json([
+                'status' => 'successful',
+                'message' => 'Ip Successfully Deleted',
+                'data' => null,
+            ]);
+        } catch (\Exception$e) {
+            throw ValidationException::withMessages([$e->getMessage()]);
+        }
+    }
+
 }
