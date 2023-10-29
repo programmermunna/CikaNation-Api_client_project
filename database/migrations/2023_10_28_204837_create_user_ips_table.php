@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('user_ips', function (Blueprint $table) {
             $table->id();
-            $table->string('ip_address')->nullable();
-            $table->string('description')->nullable();
-            $table->string('whitelisted')->nullable()->default(1);
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-            $table->unsignedBigInteger('deleted_by')->nullable();
-            $table->unsignedBigInteger('deleted_at')->nullable();
+            $table->string('ip_address')->nullable()->index();
+            $table->string('description')->nullable()->index();
+            $table->string('whitelisted')->nullable()->default(1)->index();
+            $table->unsignedBigInteger('created_by')->nullable()->index();
+            $table->unsignedBigInteger('updated_by')->nullable()->index();
+            $table->unsignedBigInteger('deleted_by')->nullable()->index();
+            $table->unsignedBigInteger('deleted_at')->nullable()->index();
             $table->timestamps();
         });
     }
