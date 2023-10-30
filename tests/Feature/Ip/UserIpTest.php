@@ -145,8 +145,9 @@ class UserIpTest extends TestCase
             'data' => true
         ]);
     }
+
     /**
-     * User Ip Delete
+     * User Ip Delete single or multiple
      */
     public function test_userIpDelete(): void
     {
@@ -158,17 +159,24 @@ class UserIpTest extends TestCase
             ])
             ->createQuietly();
 
+        UserIp::create([
+            'ip_address' => '103.15.245.74',
+            'whitelisted' => 1,
+            'description' => 'testing ip update',
+            'created_by' => 1,
+            'created_at' => now(),
+        ]);
 
-           $userIp = UserIp::create([
-                'ip_address' => '103.15.245.74',
-                'whitelisted' => 1,
-                'description' => 'testing ip update',
-                'created_by' => 1,
-                'created_at' => now(),
-            ]);
+        UserIp::create([
+            'ip_address' => '103.15.245.74',
+            'whitelisted' => 1,
+            'description' => 'testing ip update',
+            'created_by' => 1,
+            'created_at' => now(),
+        ]);
 
 
-        $response = $this->actingAs($user)->DeleteJson('/api/v1/user-ip/'.$userIp->id.'');
+        $response = $this->actingAs($user)->DeleteJson('/api/v1/user-ip/1,2');
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
