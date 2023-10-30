@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RoleController;
 use Illuminate\Http\Request;
@@ -13,4 +14,6 @@ Route::group(['middleware' => ['auth:api']], function () {
      * Roles route goes here as resources route
      */
     Route::resource('roles',RoleController::class);
+    Route::get('logs',[ActivityLogController::class,'index'])->name('logs.index');
+    Route::get('logs/download',[ActivityLogController::class,'download'])->name('logs.download');
 });

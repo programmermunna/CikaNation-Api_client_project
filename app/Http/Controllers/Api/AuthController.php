@@ -43,7 +43,7 @@ class AuthController extends Controller
         $user->update([
             'timezone' => $request->timezone ?? null,
             'last_login_at' => Carbon::now(),
-            'last_login_ip' => $request->ip ?? $request->getClientIp() ?? "0.0.0.0",
+            'last_login_ip' => $request->ip() ?? $request->getClientIp() ?? "0.0.0.0",
             'remember_token' => $token,
         ]);
 
@@ -51,7 +51,7 @@ class AuthController extends Controller
         activity('User Login')->causedBy(Auth::user()->id)
             ->performedOn($user)
             ->withProperties([
-                'ip' => Auth::user()->last_login_ip,
+                'ip' => $request->ip(),
                 'target' => $request->username,
                 'activity' => 'User Login successfully',
             ])
