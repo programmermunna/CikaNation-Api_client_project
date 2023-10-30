@@ -13,5 +13,6 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::resource('user-ip',UserIpController::class);
+    Route::put('/user-ip', [UserIpController::class, 'MultipleUpdate']);
     Route::resource('roles',RoleController::class);
 });

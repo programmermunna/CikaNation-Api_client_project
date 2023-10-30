@@ -105,7 +105,7 @@ class UserIpTest extends TestCase
 
 
            $userIp = UserIp::create([
-                'ip_address' => '103.15.245.74',
+                'ip_address' => '103.15.245.90',
                 'whitelisted' => 1,
                 'description' => 'testing ip update',
                 'created_by' => 1,
@@ -118,9 +118,9 @@ class UserIpTest extends TestCase
             'number2' => 15,
             'number3' => 245,
             'number4' => 75,
+            'whitelisted' => 1,
             'description' => 'testing updated descriptoin',
         ]);
-
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -138,6 +138,80 @@ class UserIpTest extends TestCase
                 "created_at",
                 "updated_at",
             ]
+        ]);
+
+        $response->assertJson([
+            'status' => true,
+            'message' => true,
+            'data' => true
+        ]);
+    }
+
+    /**
+     * Users Ip Update Multiple
+     */
+    public function test_userIpUpdateMultiple(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+            UserIp::create([
+                'ip_address' => '103.15.245.74',
+                'whitelisted' => 1,
+                'description' => 'testing ip update',
+                'created_by' => 1,
+                'created_at' => now(),
+            ]);
+
+            UserIp::create([
+                'ip_address' => '103.15.245.75',
+                'whitelisted' => 1,
+                'description' => 'testing ip update',
+                'created_by' => 1,
+                'created_at' => now(),
+            ]);
+
+            $data = [
+                "items" => [
+                    [
+                        "id" => 1,
+                        "item" => [
+                            "number1" => "103",
+                            "number2" => "15",
+                            "number3" => "245",
+                            "number4" => "80",
+                            "whitelisted" => 1,
+                            "description" => "testing Ip Updated"
+                        ]
+                    ],
+                    [
+                        "id" => 1,
+                        "item" => [
+                            "number1" => "103",
+                            "number2" => "15",
+                            "number3" => "245",
+                            "number4" => "90",
+                            "whitelisted" => 1,
+                            "description" => "testing Ip Updated"
+                        ]
+                    ]
+                ]
+            ];
+
+
+        $response = $this->actingAs($user)->putJson('/api/v1/user-ip/',$data);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data"
         ]);
 
         $response->assertJson([
