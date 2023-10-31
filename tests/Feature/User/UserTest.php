@@ -95,5 +95,61 @@ class UserTest extends TestCase
         ]);
     }
 
+    /**
+     * User Update.
+     */
+    public function test_userUpdate(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+            $role = Role::create(['name' => 'Writer',]);
+            $role->permissions()->sync([1,2,3]);
+
+
+        $response = $this->actingAs($user)->putJson('/api/v1/user/1', [
+            'username' => "test_user",
+            'name' => "Test User",
+            'email' => "testuser@mail.com",
+            'roles' => [1],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data" => [
+                "id",
+                "type",
+                "name",
+                "username",
+                "email",
+                "email_verified_at",
+                "active",
+                "last_login_ip",
+                "timezone",
+                "created_at",
+                "updated_at",
+                "created_by",
+                "updated_by",
+                "deleted_by",
+                "last_login_at",
+                "deleted_at",
+                "roles"
+            ]
+        ]);
+
+        $response->assertJson([
+            'status' => true,
+            'message' => true,
+            'data' => true
+        ]);
+    }
+
 
 }

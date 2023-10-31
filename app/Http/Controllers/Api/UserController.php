@@ -44,7 +44,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'roles' => ['required'],
+            'roles' => 'required',
         ]);
 
         $roles = $request->roles ?? [];
@@ -109,11 +109,58 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update user.
      */
     public function update(Request $request, string $id)
     {
-        //
+        $this->validate($request, [
+            'username' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'roles' => 'required',
+        ]);
+
+        if (count($request->roles) > 0) {
+            $roles = Role::whereIn('id', $request->roles)->get()->pluck('id')->toArray();
+            $unMatchedRolesId = array_diff($request->roles, $roles);
+
+            if (count($unMatchedRolesId) > 0) {
+                throw ValidationException::withMessages(["There is No Permission with Id(s) [" . implode(', ', $unMatchedRolesId)]);
+            }
+        }
+
+        $user = User::find($id);
+        if ($user) {
+            $input = $request->only([
+                'name',
+                'username',
+                'email',
+            ]);
+            $input['updated_by'] = Auth::user()->id;
+            $input['roles'] = $request->roles ?? $user->roles->toArray();
+
+            $user->update($input);
+            $user->roles()->sync($input['roles'] ?? []);
+
+            $user->load('roles');
+            # log activity
+            activity('update_user')->causedBy(Auth::user()->id)
+                ->performedOn($user)
+                ->withProperties([
+                    'ip' => Auth::user()->last_login_ip,
+                    'target' => $request->name,
+                    'activity' => 'Update user successfully',
+                ])
+                ->log('Update user successfully');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User Updated Successfully',
+                'data' => $user,
+            ]);
+        }
+
+        throw ValidationException::withMessages(['User Not Found!']);
     }
 
     /**
