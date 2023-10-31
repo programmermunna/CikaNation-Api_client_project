@@ -11,6 +11,43 @@ use Tests\TestCase;
 class UserTest extends TestCase
 {
     /**
+     * User List.
+     */
+    public function testUserRoleList(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+        $role = Role::create(['name' => 'Admin']);
+        $role->permissions()->sync([1, 2, 3]);
+
+
+        $response = $this->actingAs($user)->getJson('/api/v1/user');
+
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            "status",
+            "data"
+        ]);
+
+        $response->assertJson([
+            'status' => true,
+            'data' => true
+        ]);
+
+
+    }
+
+    /**
      * User Create.
      */
     public function test_userCreate(): void
@@ -57,4 +94,6 @@ class UserTest extends TestCase
             'data' => true
         ]);
     }
+
+
 }
