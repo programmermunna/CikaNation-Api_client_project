@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserIpResource;
 use App\Models\UserIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -357,6 +358,7 @@ class UserIpController extends Controller
                 'status' => 'successful',
                 'message' => 'Users Ip Updated Successfully',
                 'data' =>  $userIdData
+                'data' => new UserIpResource($model),
             ]);
 
         } catch (\Exception$e) {
