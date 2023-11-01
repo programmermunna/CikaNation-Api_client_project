@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\AnnouncementEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\UpdateAnnouncementRequest;
 use App\Models\Announcement;
@@ -45,6 +46,9 @@ class AnnouncementController extends Controller
                 'status'     => $request->status,
                 'created_by' => Auth::id(),
             ]);
+
+            AnnouncementEvent::dispatchIf($announcement->status,$announcement);
+        
 
             activity("Announcement created")
                 ->causedBy(auth()->user())
@@ -90,6 +94,7 @@ class AnnouncementController extends Controller
 
                 $this->updatedInstance[] = $announcement;
 
+                AnnouncementEvent::dispatchIf($announcement->status,$announcement);
 
                 activity("Announcement updated")
                 ->causedBy(auth()->user())
