@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Spatie\Permission\Models\Permission;
 
 class AuthController extends Controller
@@ -35,7 +36,7 @@ class AuthController extends Controller
         $input = $request->only(['password', 'username']);
 
 
-        if(!$token = auth()->attempt($input)){
+        if (!$token = auth()->attempt($input)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid Login Credentials',
@@ -71,9 +72,56 @@ class AuthController extends Controller
     }
 
 
+    /**
+     * Logout
+     */
+
+    public function logout(Request $request)
+    {
+        try {
+
+            activity('User Logout')->causedBy(Auth::user()->id)
+            ->performedOn(Auth::user())
+            ->withProperties([
+                'ip' => Auth::user()->last_login_ip,
+                'target' => Auth::user()->username,
+                'activity' => 'User Logout successfully',
+            ])
+            ->log(Auth::user()->username." Logout successfully");
+
+            $token = auth()->user();
+
+            JWTAuth::parseToken()->invalidate($token);
+
+            User::where('id', Auth::id())->update([
+                'remember_token' => null
+            ]);
+
+            Auth::logout();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Log-Out Successfully',
+            ], 200);
+        } catch (\Throwable $th) {
+            Log::error($th);
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     *
+     * @param $userId
+     * @return array|array[]
+     *
+     * @todo muna please add a unit test to cover this. !IMPORTANT
+     */
     protected function permissions($userId)
     {
         $permissionsUser = User::with('permissions')->find($userId);
-        return $permissionsUser->permissions;
+        return $permissionsUser->permissions->toArray();
     }
 }
