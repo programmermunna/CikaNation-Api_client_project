@@ -28,6 +28,8 @@ class ActivityLogTest extends FeatureBaseCase
             ])
             ->createQuietly();
 
+        $user->givePermissionTo('read_logs');
+
 
         $response = $this->actingAs($user)->getJson(route('logs.index'));
 
@@ -71,6 +73,8 @@ class ActivityLogTest extends FeatureBaseCase
                 'active' => true
             ])
             ->createQuietly();
+
+        $user->givePermissionTo('download_logs');
 
 
         $response = $this->actingAs($user)->getJson(route('logs.download'));

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\ActivityResource;
+use App\Trait\Authorizable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -11,6 +12,7 @@ use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogController extends Controller
 {
+    use Authorizable;
     /**
      * Handle the incoming request.
      */
