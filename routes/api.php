@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => ['auth:api']], function () {
-    Route::post('/login', [AuthController::class, 'login']);
     Route::resource('roles',RoleController::class);
     Route::get('announcements',[AnnouncementController::class,'index'])->name('announcements.index');
     Route::post('announcements',[AnnouncementController::class,'store'])->name('announcements.store');
