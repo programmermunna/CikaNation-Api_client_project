@@ -127,4 +127,51 @@ class AnnouncementController extends Controller
     }
 
 
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'announcements' => 'required|array|min:1',
+            'announcements.*' => 'exists:announcements,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+           
+            $announcements = Announcement::whereIn('id',$request->announcements);
+            
+            $announcements->get()->each(function($announcement){
+                activity("Announcement deleted")
+                ->causedBy(auth()->user())
+                ->performedOn($announcement)
+                ->withProperties([
+                    'ip' => Auth::user()->last_login_ip,
+                    'activity' => "Announcement deleted successfully",
+                    'target' => "$announcement->message",
+                ])
+                ->log(":causer.name deleted Announcement $announcement->message.");
+            });
+
+
+            $announcements->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Successfully Announcement Deleted!!',
+            ], 200);
+        } catch (\Exception $error) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage(),
+            ], 500);
+        }
+    }
+
+
 }
