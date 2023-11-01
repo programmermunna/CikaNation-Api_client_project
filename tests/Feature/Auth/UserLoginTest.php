@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\FeatureBaseCase;
 
 class UserLoginTest extends FeatureBaseCase
@@ -34,13 +35,9 @@ class UserLoginTest extends FeatureBaseCase
                     'name',
                     'username',
                     'email',
-                    'email_verified_at',
                     'created_at',
                     'updated_at',
-                    'deleted_at',
                     'created_by',
-                    'updated_by',
-                    'deleted_by',
                 ],
             ]
         ]);
@@ -116,6 +113,96 @@ class UserLoginTest extends FeatureBaseCase
             'message' => "Username has been deactivate!."
         ]);
     }
+
+
+    public function testUserHasPermission()
+    {
+        $user = User::factory()
+            ->sequence([
+                'active' => true
+            ])
+            ->createQuietly();
+
+        $role = Role::create([
+            'name' => 'Administrator'
+        ]);
+
+        $permissions = [
+            [
+                'name' => 'View',
+                'guard_name' => 'web',
+            ],
+            [
+                'name' => 'Create',
+                'guard_name' => 'web',
+            ],
+            [
+                'name' => 'Show',
+                'guard_name' => 'web',
+            ]
+        ];
+
+        $role->permissions()->createMany($permissions);
+
+        $user->assignRole($role);
+        $user->permissions()->sync($role->permissions->pluck('id'));
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'password',
+        ], $this->headers);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'permissions' => [
+                    '*' => [
+                        'id',
+                        'name',
+                        'guard_name',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ],
+            ],
+        ]);
+
+        $response->assertJsonCount($role->permissions->count(), 'data.permissions');
+    }
+
+
+
+    public function testUserHasNoPermission()
+    {
+        $user = User::factory()
+            ->sequence([
+                'active' => true
+            ])
+            ->createQuietly();
+
+        $response = $this->postJson('/api/v1/login', [
+            'username' => $user->username,
+            'password' => 'password',
+        ], $this->headers);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'data' => [
+                'permissions' => [],
+            ],
+        ]);
+
+        $response->assertJson([
+            'data' => [
+                'permissions' => [],
+            ],
+        ]);
+    }
+
+
+
     public static function userLoginData(): array
     {
         return [
