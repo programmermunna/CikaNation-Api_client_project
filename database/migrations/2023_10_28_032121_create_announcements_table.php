@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('message')->nullable();
             $table->boolean('status')->default(1)->comment('0= inactive, 1=active');
             $table->foreignId('created_by')->nullable()->constrained('users','id');
+            $table->index('status','announcement_status');
+            $table->index('created_at','announcement_created_at');
             $table->timestamps();
         });
     }
