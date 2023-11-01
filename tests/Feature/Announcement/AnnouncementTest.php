@@ -142,6 +142,38 @@ class AnnouncementTest extends FeatureBaseCase
         ]);
     }
 
+
+    /**
+     * Delete announcement
+     */
+
+    public function testAnnouncementDelete(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+
+        $response = $this->actingAs($user)->deleteJson(route('announcements.destroy'), [
+            "announcements" => [1, 2, 3, 4]
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            "status",
+            "message",
+        ]);
+    }
+
+
+
+
     /**
      * Event attached to listener
      */
@@ -159,21 +191,21 @@ class AnnouncementTest extends FeatureBaseCase
      * Announcement Event test
      */
 
-     public function testAnnouncementCanBeNotify(): void
-     {
-         Event::fake([
+    public function testAnnouncementCanBeNotify(): void
+    {
+        Event::fake([
             AnnouncementEvent::class
-         ]);
-  
-         $payload = [
+        ]);
+
+        $payload = [
             'message' => 'test message',
             'status' => 1,
-         ];
+        ];
 
-         $user = User::factory()->create();
+        $user = User::factory()->create();
 
-         $response = $this->actingAs($user)->postJson(route('announcements.store'), $payload);
-         
-         Event::assertDispatched(AnnouncementEvent::class);                                                                      
-     }     
+        $response = $this->actingAs($user)->postJson(route('announcements.store'), $payload);
+
+        Event::assertDispatched(AnnouncementEvent::class);
+    }
 }
