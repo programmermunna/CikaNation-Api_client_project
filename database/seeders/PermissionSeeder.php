@@ -26,19 +26,18 @@ class PermissionSeeder extends Seeder
 
             if ($route->getPrefix() !== $prefix) continue;
 
+            $index       = $this->getIndex($route);
+            $moduleName  = $this->getModuleName($route);
 
-            $index      = $this->getIndex($route);
-            $moduleName = $this->getModuleName($route);
+            $routeName   = $this->getRouteName($route);
 
-            $routeName  = $this->getRouteName($route);
-
-            $displayName   = str_replace('_',$routeName, ' ');
+            $displayName = str_replace('_',$routeName, ' ');
 
 
             $this->permissions[$moduleName][] = [
-                'module_name' => $moduleName,
-                'name'  => $routeName,
-                'display_name' => $displayName
+                'name'          => $routeName,
+                'module_name'   => $moduleName,
+                'display_name'  => $displayName
             ];
 
 

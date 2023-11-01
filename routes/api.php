@@ -13,6 +13,5 @@ Route::group(['middleware' => ['auth:api']], function () {
      * Roles route goes here as resources route
      */
     Route::resource('roles',RoleController::class);
-
-    Route::get('permissions',[PermissionController::class,'index'])->name('permissions.index');
+    Route::resource('permissions',PermissionController::class)->only('index','update');
 });
