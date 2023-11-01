@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -11,9 +12,12 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => ['auth:api']], function () {
-    /**
-     * Roles route goes here as resources route
-     */
+    Route::post('/login', [AuthController::class, 'login']);
     Route::resource('roles',RoleController::class);
     Route::resource('user',UserController::class);
+
+    Route::get('announcements',[AnnouncementController::class,'index'])->name('announcements.index');
+    Route::post('announcements',[AnnouncementController::class,'store'])->name('announcements.store');
+    Route::put('announcements',[AnnouncementController::class,'update'])->name('announcements.update');
+    Route::delete('announcements',[AnnouncementController::class,'destroy'])->name('announcements.destroy');
 });
