@@ -3,11 +3,6 @@
 namespace Tests\Feature\Activity;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Testing\Fluent\AssertableJson;
-use Spatie\Activitylog\Models\Activity;
 use Tests\FeatureBaseCase;
 
 class ActivityLogTest extends FeatureBaseCase
@@ -37,7 +32,7 @@ class ActivityLogTest extends FeatureBaseCase
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
-            'data'=>[
+            'data' => [
                 '*' => [
                     'id',
                     'log_name',
@@ -57,6 +52,44 @@ class ActivityLogTest extends FeatureBaseCase
                 'total',
             ]
         ]);
+    }
+
+
+    public function testUserCanNotSeeActivityLogList(): void
+    {
+        $this->artisan("migrate:fresh --seed");
+
+        $this->artisan("db:seed --class=ActivityLogSeeder");
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+
+        $response = $this->actingAs($user)->getJson(route('logs.index'));
+
+
+        $response->assertStatus(403);
+    }
+
+
+    public function testUserCanNotDownloadActivityLogList(): void
+    {
+        $this->artisan("migrate:fresh --seed");
+
+        $this->artisan("db:seed --class=ActivityLogSeeder");
+
+        $user = User::factory()->create();
+
+        $user->revokePermissionTo('download_logs');
+
+
+        $response = $this->actingAs($user)->getJson(route('logs.download'));
+
+
+        $response->assertStatus(403);
     }
 
 
@@ -83,7 +116,7 @@ class ActivityLogTest extends FeatureBaseCase
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
-            'data'=>[
+            'data' => [
                 '*' => [
                     'id',
                     'log_name',
