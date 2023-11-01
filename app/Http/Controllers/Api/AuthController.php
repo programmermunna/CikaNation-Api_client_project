@@ -119,9 +119,9 @@ class AuthController extends Controller
      *
      * @todo muna please add a unit test to cover this. !IMPORTANT
      */
-    protected function permissions($userId): array
+    protected function permissions($userId)
     {
         $permissionsUser = User::with('permissions')->find($userId);
-        return $permissionsUser->permissions;
+        return $permissionsUser->permissions->toArray();
     }
 }
