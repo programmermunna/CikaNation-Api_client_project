@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserIpResource;
 use App\Models\UserIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -93,7 +94,7 @@ class UserIpController extends Controller
             return response()->json([
                 'status' => 'successful',
                 'message' => 'User Ip Created Successfully',
-                'data' => $model,
+                'data' => new UserIpResource($model),
             ]);
 
         } catch (\Exception$e) {
