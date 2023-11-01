@@ -145,7 +145,7 @@ class UserLoginTest extends FeatureBaseCase
         $role->permissions()->createMany($permissions);
 
         $user->assignRole($role);
-        $user->permissions()->sync($role->permissions->pluck('id'));
+        $user->permissions()->sync($role->permissions->pluck('id')->toArray());
 
         $response = $this->postJson('/api/v1/login', [
             'username' => $user->username,
