@@ -171,6 +171,6 @@ class RoleFeatureTest extends TestCase
                 );
         });
 
-        
+
     }
 }

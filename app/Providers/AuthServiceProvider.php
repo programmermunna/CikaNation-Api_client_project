@@ -33,5 +33,6 @@ class AuthServiceProvider extends ServiceProvider
             }
             return $user->hasPermissionTo($permission);
         });
+        $this->registerPolicies();
     }
 }
