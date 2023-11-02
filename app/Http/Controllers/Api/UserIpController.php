@@ -278,7 +278,7 @@ class UserIpController extends Controller
             return response()->json(['errors' => $customMessages], 422);
         }
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
             $userIdData = [];
             $items = $request->input('items');
@@ -351,7 +351,7 @@ class UserIpController extends Controller
                 ->log('Successfully Updated User ip, ' . $dataLog);
 
                 $userIdData[] = $UserIp;
-            DB::commit();
+            // DB::commit();
             }
 
             return response()->json([
