@@ -351,14 +351,16 @@ class UserIpController extends Controller
                 ->log('Successfully Updated User ip, ' . $dataLog);
 
                 $userIdData[] = $UserIp;
-            DB::commit();
+            }
 
+            DB::commit();
             return response()->json([
                 'status' => 'successful',
                 'message' => 'Users Ip Updated Successfully',
                 'data' =>  $userIdData,
             ],200);
-        }} catch (\Exception$e) {
+
+        } catch (\Exception$e) {
             Log::error($e);
             throw ValidationException::withMessages([$e->getMessage()]);
         }
