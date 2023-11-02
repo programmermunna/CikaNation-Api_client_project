@@ -278,8 +278,6 @@ class UserIpController extends Controller
             return response()->json(['errors' => $customMessages], 422);
         }
 
-        DB::beginTransaction();
-        try {
             $userIdData = [];
             $items = $request->input('items');
             foreach($items as $item){
@@ -353,16 +351,10 @@ class UserIpController extends Controller
                 $userIdData[] = $UserIp;
             }
 
-            DB::commit();
             return response()->json([
                 'status' => 'successful',
                 'message' => 'Users Ip Updated Successfully',
                 'data' =>  $userIdData,
             ],200);
-
-        } catch (\Exception$e) {
-            Log::error($e);
-            throw ValidationException::withMessages([$e->getMessage()]);
-        }
     }
 }
