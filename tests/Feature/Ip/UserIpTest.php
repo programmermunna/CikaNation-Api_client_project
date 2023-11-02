@@ -164,7 +164,7 @@ class UserIpTest extends FeatureBaseCase
     /**
      * Users Ip Update Multiple
      */
-    public function test_userIpUpdateMultiple(): void
+    public function testUserIpUpdateMultiple()
     {
         $this->artisan('migrate:fresh --seed');
 
@@ -221,7 +221,7 @@ class UserIpTest extends FeatureBaseCase
             ];
 
 
-        $response = $this->actingAs($user)->putJson('/api/v1/user-ip/',$data);
+        $response = $this->actingAs($user)->putJson('/api/v1/user-ip',$data);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -236,4 +236,7 @@ class UserIpTest extends FeatureBaseCase
             'data' => true
         ]);
     }
+
+
+
 }

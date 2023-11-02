@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/login', [AuthController::class, 'login']);
-    // Route::resource('user-ip',UserIpController::class);
     Route::resource('user-ip',UserIpController::class)->middleware("permission:user.access.user.ip.create|user.access.user.ip.edit|user.access.user.ip.delete|user.access.user.ip.view");
     Route::put('/user-ip', [UserIpController::class, 'MultipleUpdate'])->middleware("permission:user.access.user.ip.create|user.access.user.ip.edit|user.access.user.ip.delete|user.access.user.ip.view");
     Route::resource('roles',RoleController::class);
