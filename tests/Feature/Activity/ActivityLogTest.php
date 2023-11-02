@@ -26,7 +26,7 @@ class ActivityLogTest extends FeatureBaseCase
         $user->givePermissionTo('read_logs');
 
 
-        $response = $this->actingAs($user)->getJson(route('logs.index'));
+        $response = $this->actingAs($user)->getJson(route('admin.logs.index'));
 
 
         $response->assertStatus(200);
@@ -68,7 +68,7 @@ class ActivityLogTest extends FeatureBaseCase
             ->createQuietly();
 
 
-        $response = $this->actingAs($user)->getJson(route('logs.index'));
+        $response = $this->actingAs($user)->getJson(route('admin.logs.index'));
 
 
         $response->assertStatus(403);
@@ -86,7 +86,7 @@ class ActivityLogTest extends FeatureBaseCase
         $user->revokePermissionTo('download_logs');
 
 
-        $response = $this->actingAs($user)->getJson(route('logs.download'));
+        $response = $this->actingAs($user)->getJson(route('admin.logs.download'));
 
 
         $response->assertStatus(403);
@@ -110,7 +110,7 @@ class ActivityLogTest extends FeatureBaseCase
         $user->givePermissionTo('download_logs');
 
 
-        $response = $this->actingAs($user)->getJson(route('logs.download'));
+        $response = $this->actingAs($user)->getJson(route('admin.logs.download'));
 
 
         $response->assertStatus(200);

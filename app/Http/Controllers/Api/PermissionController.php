@@ -20,12 +20,31 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $data = UserPermission::whereNull('parent_id')->with('children')->get();
+        $data = UserPermission::whereNull('parent_id')->get();
 
-        $data = PermissionResource::collection($data);
+        $dataset = [];
+
+        $data->each(function($module) use(&$dataset){
+            foreach($module->children as $child){
+
+                if($child->children){
+                   foreach($child->children as $value){
+                    $dataset[$module->name][$child->name][] = [
+                        'id' => $value->id,
+                        'parent_id' => $child->id,
+                        'module_id' => $module->id,
+                        'name'      => $value->display_name ?? $value->name,
+                        'created_at' => $value->created_at->format('d-M-Y H:i:s')     
+                    ];
+                   }
+                }
+                
+            }
+        });
+
 
         return response()->json([
-            'data' => $data
+            'data' => $dataset
         ], 200);
     }
 

@@ -16,7 +16,7 @@ Route::group(['middleware' => ['auth:api']], function () {
      * Admin module routes 
      */
     Route::name('admin.')->group(function () {
-        Route::resource('user-ip', UserIpController::class)->middleware("permission:user.access.user.ip.create|user.access.user.ip.edit|user.access.user.ip.delete|user.access.user.ip.view");
+        Route::resource('user-ip', UserIpController::class);
         Route::resource('roles', RoleController::class);
         Route::get('logs', [ActivityLogController::class, 'index'])->name('logs.index');
         Route::get('logs/download', [ActivityLogController::class, 'download'])->name('logs.download');

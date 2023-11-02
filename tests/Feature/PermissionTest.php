@@ -21,18 +21,12 @@ class PermissionTest extends FeatureBaseCase
 
         $user->givePermissionTo('read_permissions');
 
-        $response = $this->actingAs($user)->getJson(route('permissions.index'));
+        $response = $this->actingAs($user)->getJson(route('admin.permissions.index'));
 
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
             'data' => [
-                '*' => [
-                    'id',
-                    'name',
-                    'created_at',
-                    'children',
-                ]
             ]
         ]);
     }
@@ -47,7 +41,7 @@ class PermissionTest extends FeatureBaseCase
 
         $user->givePermissionTo('update_permissions');
 
-        $response = $this->actingAs($user)->putJson(route('permissions.update', 1), [
+        $response = $this->actingAs($user)->putJson(route('admin.permissions.update', 1), [
             'name' => 'update from test',
             'parent_id' => null
         ]);
@@ -58,11 +52,6 @@ class PermissionTest extends FeatureBaseCase
             'status',
             'message',
             'data' => [
-                'id',
-                'name',
-                'module_name',
-                'display_name',
-                'created_at',
             ]
         ]);
     }

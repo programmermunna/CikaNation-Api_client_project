@@ -12,9 +12,11 @@ class UserPermission extends Permission
 
     protected $guarded = ['id'];
 
+    protected $with = ['children'];
+
 
     public function children()
     {
-        return $this->belongsTo(UserPermission::class,'parent_id','id');
+        return $this->hasMany(UserPermission::class,'parent_id','id');
     }
 }

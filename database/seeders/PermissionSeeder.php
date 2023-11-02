@@ -32,45 +32,59 @@ class PermissionSeeder extends Seeder
 
             $routeName   = $this->getRouteName($route);
 
-            $displayName = str_replace('_',$routeName, ' ');
+            $displayName = str_replace('_', ' ',$routeName);
+            $displayName = str_replace('-', ' ',$displayName);
 
+            $parentModule = $this->getParentModuleName($route);
 
-            $this->permissions[$moduleName][] = [
+            $this->permissions[$parentModule][$moduleName][] = [
                 'name'          => $routeName,
                 'module_name'   => $moduleName,
                 'display_name'  => $displayName
             ];
-
-
         }
 
 
         $this->insertPermission();
-
-
     }
 
 
 
     private function insertPermission()
     {
-        foreach($this->permissions as $moduleName => $values){
-            $parent = Permission::create([
-                'name' => $moduleName,
-                'module_name' => $moduleName,
+        foreach ($this->permissions as $moduleName => $values) {
+
+            if (Permission::where('name', $moduleName)->count()) continue;
+
+            $module = Permission::create([
+                'name'         => $moduleName,
+                'module_name'  => $moduleName,
                 'display_name' => $moduleName,
             ]);
 
-            foreach($values as $child){
+            foreach ($values as $parent => $children) {
 
-                if(Permission::where('name',$child['name'])->count()) continue;
+                if (Permission::where('name', $parent)->count()) continue;
 
-                Permission::create([
-                    'parent_id' => $parent->id,
-                    'name' => $child['name'],
-                    'display_name' => $child['display_name'],
-                    'module_name'  => $child['module_name'],
+                $parent = Permission::create([
+                    'parent_id'    => $module->id,
+                    'name'         => $parent,
+                    'module_name'  => $parent,
+                    'display_name' => $parent,
                 ]);
+
+
+                foreach ($children as $key => $child) {
+
+                    if (Permission::where('name', $child['name'])->count()) continue;
+
+                    Permission::create([
+                        'parent_id' => $parent->id,
+                        'name' => $child['name'],
+                        'display_name' => $child['display_name'],
+                        'module_name'  => $child['module_name'],
+                    ]);
+                }
             }
         }
     }
@@ -80,18 +94,21 @@ class PermissionSeeder extends Seeder
     private function getRouteName($route)
     {
         $index    = $this->getIndex($route);
-        $method   = explode('@',$route->getActionName())[1];
+        $method   = explode('@', $route->getActionName())[1];
         $routeArr = explode('.', $route->getName());
         $name     = $routeArr[$index];
         $ability  = config('abilities')[$method] ?? $method;
 
-        if($ability == $name){
+        if ($ability == $name) {
             return $name;
         }
         return $ability . "_" . $name;
     }
 
-
+    private function getParentModuleName($route)
+    {
+        return explode('.', $route->getName())[0];
+    }
 
     private function getModuleName($route)
     {
