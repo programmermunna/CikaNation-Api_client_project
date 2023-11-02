@@ -278,68 +278,70 @@ class UserIpController extends Controller
             return response()->json(['errors' => $customMessages], 422);
         }
 
+        try {
+            DB::beginTransaction();
             $userIdData = [];
             $items = $request->input('items');
             foreach($items as $item){
                 $id = $item['id'];
 
-            if ($item['item']['number3'] === null && $item['item']['number4'] !== null) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Format IP Invalid!.',
-                ], 400);
-            }
-
-            $UserIp = UserIp::find($id);
-
-            if (!$UserIp) {
-                throw ValidationException::withMessages(["$UserIp Ip Not Found"]);
-            }
-
-            $ip1 = $item['item']['number1'];
-            $ip2 = $item['item']['number2'];
-            $ip3 = $item['item']['number3'];
-            $ip4 = $item['item']['number4'];
-            $ip_address = $ip1 . '.' . $ip2 . '.' . $ip3 . '.' . $ip4;
-            $checkIps = UserIp::select('ip_address')->where('ip_address', 'LIKE', '%' . $ip1 . '.' . $ip2 . '%')->whereNotIn('id', [$id])->pluck('ip_address')->toArray();
-            if ($checkIps != []) {
-
-                if (in_array($ip_address, $checkIps)) {
+                if ($item['item']['number3'] === null && $item['item']['number4'] !== null) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'User Ip already exist',
-                        'ip_whitelist' => $ip_address,
+                        'message' => 'Format IP Invalid!.',
                     ], 400);
                 }
-            }
 
-            // Update on Database
-            $description = $item['item']['description'] ?? $UserIp->description;
-            $payload = [
-                'ip_address' => $ip_address,
-                'whitelisted' => $item['item']['whitelisted'],
-                'description' => $description,
-                'updated_by' => auth()->user()->id,
-                'updated_at' => now(),
-            ];
+                $UserIp = UserIp::find($id);
 
-            $dataUpdate = [];
-            if ($UserIp->ip_address != $ip_address) {
-                $dataUpdate['ip_address'] = 'IP Address : ' . $UserIp->ip_address . ' -> ' . $ip_address;
-            }
-            if ($UserIp->whitelisted != $request->whitelisted) {
-                $dataUpdate['whitelisted'] = 'Whitelisted : ' . ($UserIp->whitelisted == 1 ? 'True' : 'False') . ' -> ' . ($request->whitelisted == 1 ? 'True' : 'False');
-            }
-            if ($UserIp->description != $description) {
-                $dataUpdate['description'] = 'Description : ' . $UserIp->description . ' -> ' . $description;
-            }
+                if (!$UserIp) {
+                    throw ValidationException::withMessages(["$UserIp Ip Not Found"]);
+                }
 
-            $dataLog = implode(', ', $dataUpdate) == null ? 'No Data Updated' : implode(', ', $dataUpdate);
+                $ip1 = $item['item']['number1'];
+                $ip2 = $item['item']['number2'];
+                $ip3 = $item['item']['number3'];
+                $ip4 = $item['item']['number4'];
+                $ip_address = $ip1 . '.' . $ip2 . '.' . $ip3 . '.' . $ip4;
+                $checkIps = UserIp::select('ip_address')->where('ip_address', 'LIKE', '%' . $ip1 . '.' . $ip2 . '%')->whereNotIn('id', [$id])->pluck('ip_address')->toArray();
+                if ($checkIps != []) {
 
-            $UserIp->update($payload);
+                    if (in_array($ip_address, $checkIps)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'User Ip already exist',
+                            'ip_whitelist' => $ip_address,
+                        ], 400);
+                    }
+                }
 
-            // Create Activity Log
-            activity('update User ip')->causedBy(Auth::user()->id)
+                // Update on Database
+                $description = $item['item']['description'] ?? $UserIp->description;
+                $payload = [
+                    'ip_address' => $ip_address,
+                    'whitelisted' => $item['item']['whitelisted'],
+                    'description' => $description,
+                    'updated_by' => auth()->user()->id,
+                    'updated_at' => now(),
+                ];
+
+                $dataUpdate = [];
+                if ($UserIp->ip_address != $ip_address) {
+                    $dataUpdate['ip_address'] = 'IP Address : ' . $UserIp->ip_address . ' -> ' . $ip_address;
+                }
+                if ($UserIp->whitelisted != $request->whitelisted) {
+                    $dataUpdate['whitelisted'] = 'Whitelisted : ' . ($UserIp->whitelisted == 1 ? 'True' : 'False') . ' -> ' . ($request->whitelisted == 1 ? 'True' : 'False');
+                }
+                if ($UserIp->description != $description) {
+                    $dataUpdate['description'] = 'Description : ' . $UserIp->description . ' -> ' . $description;
+                }
+
+                $dataLog = implode(', ', $dataUpdate) == null ? 'No Data Updated' : implode(', ', $dataUpdate);
+
+                $UserIp->update($payload);
+
+                // Create Activity Log
+                activity('update User ip')->causedBy(Auth::user()->id)
                 ->performedOn($UserIp)
                 ->withProperties([
                     'ip' => Auth::user()->last_login_ip,
@@ -351,10 +353,16 @@ class UserIpController extends Controller
                 $userIdData[] = $UserIp;
             }
 
+            DB::commit();
             return response()->json([
                 'status' => 'successful',
                 'message' => 'Users Ip Updated Successfully',
                 'data' =>  $userIdData,
             ],200);
+
+        } catch (\Exception$e) {
+            Log::error($e);
+            throw ValidationException::withMessages([$e->getMessage()]);
+        }
     }
 }
