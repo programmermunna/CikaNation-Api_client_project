@@ -357,8 +357,7 @@ class UserIpController extends Controller
             return response()->json([
                 'status' => 'successful',
                 'message' => 'Users Ip Updated Successfully',
-                'data' =>  $userIdData
-                'data' => new UserIpResource($model),
+                'data' =>  $userIdData,
             ]);
 
         } catch (\Exception$e) {

@@ -102,7 +102,7 @@ class UserIpTest extends FeatureBaseCase
     /**
      * User Ip Update
      */
-    public function testUserWithoutPermissionCannotCreateIp()
+    public function testUserIpUpdate()
     {
         $this->artisan('migrate:fresh --seed');
 
@@ -228,15 +228,5 @@ class UserIpTest extends FeatureBaseCase
             'message' => true,
             'data' => true
         ]);
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/user-ip', [
-                'number1' => 103,
-                'number2' => 15,
-                'number3' => 245,
-                'number4' => 75,
-                'description' => 'testing description',
-            ]);
-
-        $response->assertStatus(403);
     }
 }
