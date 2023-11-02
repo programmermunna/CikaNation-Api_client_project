@@ -166,8 +166,43 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($ids)
     {
-        //
+        try {
+            $ids = explode(',',$ids);
+
+            foreach ($ids as $id_check){
+                $user = User::find($id_check);
+                if (!$user) {
+                    throw ValidationException::withMessages(["With Id $id_check Not Found, Please Send Valid data"]);
+            }}
+
+            foreach ($ids as $id){
+                $user = User::find($id);
+                $user->update([
+                    'deleted_by' => Auth::user()->id,
+                    'deleted_at' => now(),
+                ]);
+
+                activity('user')->causedBy(Auth::user()->id)
+                    ->performedOn($user)
+                    ->withProperties([
+                        'user' => Auth::user()->last_login_ip,
+                        'target' => $user->ip_address,
+                        'activity' => 'Deleted user',
+                    ])
+                    ->log('Successfully');
+
+                $user->delete();
+            }
+
+            return response()->json([
+                'status' => 'successful',
+                'message' => 'User Successfully Deleted',
+                'data' => null,
+            ]);
+        } catch (\Exception$e) {
+            throw ValidationException::withMessages([$e->getMessage()]);
+        }
     }
 }

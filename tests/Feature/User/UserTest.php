@@ -151,5 +151,54 @@ class UserTest extends TestCase
         ]);
     }
 
+    /**
+     * User Delete single or multiple
+     */
+    public function test_userDelete(): void
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
+
+        $role = Role::create(['name' => 'Writer',]);
+        $role->permissions()->sync([1,2,3]);
+
+        User::create([
+            'username' => "test_user1",
+            'name' => "Test Use1r",
+            'email' => "testuser1@mail.com",
+            'password' => 'password',
+            'roles' => [1],
+        ]);
+
+        User::create([
+            'username' => "test_user2",
+            'name' => "Test User2",
+            'email' => "testuser2@mail.com",
+            'password' => 'password',
+            'roles' => [1],
+        ]);
+
+
+        $response = $this->actingAs($user)->DeleteJson('/api/v1/user/1,2');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            "status",
+            "message",
+            "data",
+        ]);
+
+        $response->assertJson([
+            'status' => true,
+            'message' => true,
+            'data' => false
+        ]);
+    }
+
 
 }
