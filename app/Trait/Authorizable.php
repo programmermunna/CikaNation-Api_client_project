@@ -3,6 +3,7 @@
 namespace App\Trait;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 
 trait Authorizable
@@ -31,7 +32,7 @@ trait Authorizable
     {
         $routeName   = explode('.', \Request::route()->getName());
 
-        $action      = Arr::get($this->getAbilities(), $method);
+        $action      = Arr::get($this->getAbilities(), $method) ?? $method;
 
         $actionIndex = count($routeName) == 1 ? 0 : (count($routeName) == 2 ? 0 : 1);
 
@@ -44,6 +45,7 @@ trait Authorizable
             '6' => 4,
             '7' => 5
         ][count($routeName)];
+
 
         if($action == $routeName[$index]){
             return $action;

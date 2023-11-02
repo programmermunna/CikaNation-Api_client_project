@@ -26,6 +26,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->registerPolicies();
         Gate::before(function (User $user, $permission) {
         
             if ($user->hasRole('admin')) {
@@ -33,6 +34,5 @@ class AuthServiceProvider extends ServiceProvider
             }
             return $user->hasPermissionTo($permission);
         });
-        $this->registerPolicies();
     }
 }
