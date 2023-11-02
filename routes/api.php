@@ -20,4 +20,8 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('announcements',[AnnouncementController::class,'store'])->name('announcements.store');
     Route::put('announcements',[AnnouncementController::class,'update'])->name('announcements.update');
     Route::delete('announcements',[AnnouncementController::class,'destroy'])->name('announcements.destroy');
+
+    Route::get('/test',function(){
+        return "hello world";
+    })->middleware("permission:admin.user.test");
 });

@@ -15,6 +15,6 @@ class UserPermission extends Permission
 
     public function children()
     {
-        return $this->hasMany(UserPermission::class,'parent_id','id');
+        return $this->belongsTo(UserPermission::class,'parent_id','id');
     }
 }
