@@ -118,13 +118,7 @@ class UserIpTest extends FeatureBaseCase
         $user->assignRole(Role::where('name', 'Administrator')->first());
 
 
-           $userIp = UserIp::create([
-                'ip_address' => '103.15.245.90',
-                'whitelisted' => 1,
-                'description' => 'testing ip update',
-                'created_by' => 1,
-                'created_at' => now(),
-            ]);
+        $userIp = UserIp::factory()->create();
 
 
         $response = $this->actingAs($user)->putJson('/api/v1/user-ip/'.$userIp->id.'', [
@@ -176,22 +170,7 @@ class UserIpTest extends FeatureBaseCase
 
             $user->assignRole(Role::where('name', 'Administrator')->first());
 
-
-            UserIp::create([
-                'ip_address' => '103.15.245.74',
-                'whitelisted' => 1,
-                'description' => 'testing ip update',
-                'created_by' => 1,
-                'created_at' => now(),
-            ]);
-
-            UserIp::create([
-                'ip_address' => '103.15.245.75',
-                'whitelisted' => 1,
-                'description' => 'testing ip update',
-                'created_by' => 1,
-                'created_at' => now(),
-            ]);
+            UserIp::factory(2)->create();
 
             $data = [
                 "items" => [
