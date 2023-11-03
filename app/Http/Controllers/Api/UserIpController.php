@@ -19,7 +19,7 @@ class UserIpController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'data'   => UserIp::all(),
+            'data'   => UserIpResource::collection(UserIp::get()),
         ], 200);
     }
 
@@ -149,7 +149,7 @@ class UserIpController extends Controller
             ], 400);
         }
 
-        DB::beginTransaction();
+//        DB::beginTransaction();
         try {
 
             $UserIp = UserIp::find($id);
@@ -210,7 +210,7 @@ class UserIpController extends Controller
                 ])
                 ->log('Successfully Updated User ip, ' . $dataLog);
 
-            DB::commit();
+//            DB::commit();
 
             return response()->json([
                 'status' => 'successful',
@@ -279,7 +279,7 @@ class UserIpController extends Controller
         }
 
         try {
-            DB::beginTransaction();
+//            DB::beginTransaction();
             $userIdData = [];
             $items = $request->input('items');
             foreach($items as $item){
@@ -353,7 +353,7 @@ class UserIpController extends Controller
                 $userIdData[] = $UserIp;
             }
 
-            DB::commit();
+//            DB::commit();
             return response()->json([
                 'status' => 'successful',
                 'message' => 'Users Ip Updated Successfully',
