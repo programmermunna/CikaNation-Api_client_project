@@ -53,7 +53,6 @@ class UserIpTest extends FeatureBaseCase
      */
     public function testUserWithAppropriatePrivilegeCanIpCreate(): void
     {
-        $this->artisan('migrate:fresh --seed');
 
         $user = User::factory()
             ->state([
@@ -106,7 +105,6 @@ class UserIpTest extends FeatureBaseCase
      */
     public function testUserIpUpdate()
     {
-        $this->artisan('migrate:fresh --seed');
 
         $user = User::factory()
             ->state([
@@ -160,8 +158,6 @@ class UserIpTest extends FeatureBaseCase
      */
     public function testUserIpUpdateMultiple()
     {
-        $this->artisan('migrate:fresh --seed');
-
         $user = User::factory()
             ->state([
                 'active' => true
