@@ -221,7 +221,7 @@ class UserIpTest extends FeatureBaseCase
             ];
 
 
-        $response = $this->actingAs($user)->putJson('/api/v1/user-ip',$data);
+        $response = $this->actingAs($user)->putJson('/api/v1/user-ips',$data);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
