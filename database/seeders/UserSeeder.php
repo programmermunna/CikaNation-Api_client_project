@@ -16,13 +16,13 @@ class UserSeeder extends Seeder
     {
         User::factory(10)->create();
 
-        $user = \App\Models\User::create([
+        $user = \App\Models\User::factory()->state([
             'name'     => 'Test User',
             'username' => 'test',
             'email'    => 'test@example.com',
-            'password' => Hash::make(12345678),
+            'password' => bcrypt(12345678),
             'email_verified_at' => now(),
-        ]);
+        ])->create();
         $user->permissions()->sync([1,2,3]);
     }
 }
