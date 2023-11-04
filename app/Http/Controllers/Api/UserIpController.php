@@ -14,6 +14,15 @@ use Illuminate\Validation\ValidationException;
 
 class UserIpController extends Controller
 {
+
+    public function index()
+    {
+        return response()->json([
+            'status' => 'success',
+            'data'   => UserIp::all(),
+        ], 200);
+    }
+
     public function store(Request $request)
     {
 
