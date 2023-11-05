@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Trait\Authorizable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
+    use Authorizable;
     /**
      * Display a listing of the resource.
      */

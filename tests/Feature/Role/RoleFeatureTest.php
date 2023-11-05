@@ -24,9 +24,11 @@ class RoleFeatureTest extends TestCase
                 'active' => true
             ])
             ->createQuietly();
+        
+        $user->givePermissionTo('create_roles');
 
 
-        $response = $this->actingAs($user)->postJson(route('roles.store'), [
+        $response = $this->actingAs($user)->postJson(route('admin.roles.store'), [
             'name' => Str::random(10),
             'permissions' => [1, 2, 3]
         ]);
@@ -61,13 +63,16 @@ class RoleFeatureTest extends TestCase
             ])
             ->createQuietly();
 
+            $user->givePermissionTo('update_roles');
+
+
 
         $role = Role::create([
             'name' => 'Test_Role'
         ]);
 
 
-        $response = $this->actingAs($user)->putJson(route('roles.update', $role->id), [
+        $response = $this->actingAs($user)->putJson(route('admin.roles.update', $role->id), [
             'name' => Str::random(10),
             'permissions' => [1, 2, 3]
         ]);
@@ -105,13 +110,16 @@ class RoleFeatureTest extends TestCase
             ])
             ->createQuietly();
 
+            $user->givePermissionTo('delete_roles');
+
+
 
         $role = Role::create([
             'name' => 'Test_Role'
         ]);
 
 
-        $response = $this->actingAs($user)->deleteJson(route('roles.destroy', $role->id));
+        $response = $this->actingAs($user)->deleteJson(route('admin.roles.destroy', $role->id));
 
 
         $response->assertStatus(200);
@@ -136,13 +144,15 @@ class RoleFeatureTest extends TestCase
                 'active' => true
             ])
             ->createQuietly();
-
+        
+        $user->givePermissionTo('read_roles');
 
         $role = Role::create(['name' => 'Admin']);
+
         $role->permissions()->sync([1, 2, 3]);
 
 
-        $response = $this->actingAs($user)->getJson(route('roles.index'));
+        $response = $this->actingAs($user)->getJson(route('admin.roles.index'));
 
 
         $response->assertStatus(200);
