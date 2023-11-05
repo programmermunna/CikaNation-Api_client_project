@@ -24,149 +24,6 @@ class UserIpController extends Controller
         ], 200);
     }
 
-
-    public function multi_update(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'items' => 'required|array',
-            'items.*.id' => 'required|integer',
-            'items.*.item' => 'required|array',
-            'items.*.item.number1' => 'required|integer',
-            'items.*.item.number2' => 'required|integer',
-            'items.*.item.number3' => 'required|integer',
-            'items.*.item.number4' => 'required|integer',
-            'items.*.item.whitelisted' => 'required|integer',
-            'items.*.item.description' => 'required|string|max:255',
-        ], [
-            'items.required' => 'The items field is required.',
-            'items.array' => 'The items must be an array.',
-            'items.*.id.required' => 'The ID is required for item :itemIndex.',
-            'items.*.id.integer' => 'The ID for item :itemIndex must be an integer.',
-            'items.*.item.required' => 'The item for item :itemIndex is required.',
-            'items.*.item.array' => 'The item for item :itemIndex must be an array.',
-            'items.*.item.number1.required' => 'The number1 field for item :itemIndex is required.',
-            'items.*.item.number1.integer' => 'The number1 field for item :itemIndex must be an integer.',
-            'items.*.item.number2.required' => 'The number2 field for item :itemIndex is required.',
-            'items.*.item.number2.integer' => 'The number2 field for item :itemIndex must be an integer.',
-            'items.*.item.number3.required' => 'The number3 field for item :itemIndex is required.',
-            'items.*.item.number3.integer' => 'The number3 field for item :itemIndex must be an integer.',
-            'items.*.item.number4.required' => 'The number4 field for item :itemIndex is required.',
-            'items.*.item.number4.integer' => 'The number4 field for item :itemIndex must be an integer.',
-            'items.*.item.whitelisted.required' => 'The whitelisted field is required.',
-            'items.*.item.whitelisted.integer' => 'The whitelisted field must be an integer.',
-            'items.*.item.description.required' => 'The description field for item :itemIndex is required.',
-            'items.*.item.description.string' => 'The description field for item :itemIndex must be a string.',
-            'items.*.item.description.max' => 'The description field for item :itemIndex may not be greater than :max characters.',
-        ]);
-
-        $validator->setAttributeNames([
-            'items.*.id' => 'ID',
-            'items.*.item.number1' => 'Number 1',
-            'items.*.item.number2' => 'Number 2',
-            'items.*.item.number3' => 'Number 3',
-            'items.*.item.number4' => 'Number 4',
-            'items.*.item.whitelisted' => 'Whitelisted',
-            'items.*.item.description' => 'Description',
-        ]);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->messages();
-            foreach ($errors as $key => $messages) {
-                foreach ($messages as $message) {
-                    $customMessages[] = str_replace(':itemIndex', $key, $message);
-                }
-            }
-            return response()->json(['errors' => $customMessages], 422);
-        }
-
-        try {
-//            DB::beginTransaction();
-            $userIdData = [];
-            $items = $request->input('items');
-            foreach($items as $item){
-                $id = $item['id'];
-
-                if ($item['item']['number3'] === null && $item['item']['number4'] !== null) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Format IP Invalid!.',
-                    ], 400);
-                }
-
-                $UserIp = UserIp::find($id);
-
-                if (!$UserIp) {
-                    throw ValidationException::withMessages(["$UserIp Ip Not Found"]);
-                }
-
-                $ip1 = $item['item']['number1'];
-                $ip2 = $item['item']['number2'];
-                $ip3 = $item['item']['number3'];
-                $ip4 = $item['item']['number4'];
-                $ip_address = $ip1 . '.' . $ip2 . '.' . $ip3 . '.' . $ip4;
-                $checkIps = UserIp::select('ip_address')->where('ip_address', 'LIKE', '%' . $ip1 . '.' . $ip2 . '%')->whereNotIn('id', [$id])->pluck('ip_address')->toArray();
-                if ($checkIps != []) {
-
-                    if (in_array($ip_address, $checkIps)) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'User Ip already exist',
-                            'ip_whitelist' => $ip_address,
-                        ], 400);
-                    }
-                }
-
-                // Update on Database
-                $description = $item['item']['description'] ?? $UserIp->description;
-                $payload = [
-                    'ip_address' => $ip_address,
-                    'whitelisted' => $item['item']['whitelisted'],
-                    'description' => $description,
-                    'updated_by' => auth()->user()->id,
-                    'updated_at' => now(),
-                ];
-
-                $dataUpdate = [];
-                if ($UserIp->ip_address != $ip_address) {
-                    $dataUpdate['ip_address'] = 'IP Address : ' . $UserIp->ip_address . ' -> ' . $ip_address;
-                }
-                if ($UserIp->whitelisted != $request->whitelisted) {
-                    $dataUpdate['whitelisted'] = 'Whitelisted : ' . ($UserIp->whitelisted == 1 ? 'True' : 'False') . ' -> ' . ($request->whitelisted == 1 ? 'True' : 'False');
-                }
-                if ($UserIp->description != $description) {
-                    $dataUpdate['description'] = 'Description : ' . $UserIp->description . ' -> ' . $description;
-                }
-
-                $dataLog = implode(', ', $dataUpdate) == null ? 'No Data Updated' : implode(', ', $dataUpdate);
-
-                $UserIp->update($payload);
-
-                // Create Activity Log
-                activity('update User ip')->causedBy(Auth::user()->id)
-                ->performedOn($UserIp)
-                ->withProperties([
-                    'ip' => Auth::user()->last_login_ip,
-                    'target' => $UserIp->ip_address,
-                    'activity' => 'Updated User ip',
-                ])
-                ->log('Successfully Updated User ip, ' . $dataLog);
-
-                $userIdData[] = $UserIp;
-            }
-
-//            DB::commit();
-            return response()->json([
-                'status' => 'successful',
-                'message' => 'Users Ip Updated Successfully',
-                'data' =>  $userIdData,
-            ],200);
-
-        } catch (\Exception$e) {
-            Log::error($e);
-            throw ValidationException::withMessages([$e->getMessage()]);
-        }
-    }
-
     use Authorizable;
 
     public function store(Request $request)
@@ -362,6 +219,149 @@ class UserIpController extends Controller
                 'status' => 'successful',
                 'message' => 'User Ip Updated Successfully',
                 'data' => $UserIp,
+            ],200);
+
+        } catch (\Exception$e) {
+            Log::error($e);
+            throw ValidationException::withMessages([$e->getMessage()]);
+        }
+    }
+
+
+    public function multi_update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'items' => 'required|array',
+            'items.*.id' => 'required|integer',
+            'items.*.item' => 'required|array',
+            'items.*.item.number1' => 'required|integer',
+            'items.*.item.number2' => 'required|integer',
+            'items.*.item.number3' => 'required|integer',
+            'items.*.item.number4' => 'required|integer',
+            'items.*.item.whitelisted' => 'required|integer',
+            'items.*.item.description' => 'required|string|max:255',
+        ], [
+            'items.required' => 'The items field is required.',
+            'items.array' => 'The items must be an array.',
+            'items.*.id.required' => 'The ID is required for item :itemIndex.',
+            'items.*.id.integer' => 'The ID for item :itemIndex must be an integer.',
+            'items.*.item.required' => 'The item for item :itemIndex is required.',
+            'items.*.item.array' => 'The item for item :itemIndex must be an array.',
+            'items.*.item.number1.required' => 'The number1 field for item :itemIndex is required.',
+            'items.*.item.number1.integer' => 'The number1 field for item :itemIndex must be an integer.',
+            'items.*.item.number2.required' => 'The number2 field for item :itemIndex is required.',
+            'items.*.item.number2.integer' => 'The number2 field for item :itemIndex must be an integer.',
+            'items.*.item.number3.required' => 'The number3 field for item :itemIndex is required.',
+            'items.*.item.number3.integer' => 'The number3 field for item :itemIndex must be an integer.',
+            'items.*.item.number4.required' => 'The number4 field for item :itemIndex is required.',
+            'items.*.item.number4.integer' => 'The number4 field for item :itemIndex must be an integer.',
+            'items.*.item.whitelisted.required' => 'The whitelisted field is required.',
+            'items.*.item.whitelisted.integer' => 'The whitelisted field must be an integer.',
+            'items.*.item.description.required' => 'The description field for item :itemIndex is required.',
+            'items.*.item.description.string' => 'The description field for item :itemIndex must be a string.',
+            'items.*.item.description.max' => 'The description field for item :itemIndex may not be greater than :max characters.',
+        ]);
+
+        $validator->setAttributeNames([
+            'items.*.id' => 'ID',
+            'items.*.item.number1' => 'Number 1',
+            'items.*.item.number2' => 'Number 2',
+            'items.*.item.number3' => 'Number 3',
+            'items.*.item.number4' => 'Number 4',
+            'items.*.item.whitelisted' => 'Whitelisted',
+            'items.*.item.description' => 'Description',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->messages();
+            foreach ($errors as $key => $messages) {
+                foreach ($messages as $message) {
+                    $customMessages[] = str_replace(':itemIndex', $key, $message);
+                }
+            }
+            return response()->json(['errors' => $customMessages], 422);
+        }
+
+        try {
+//            DB::beginTransaction();
+            $userIdData = [];
+            $items = $request->input('items');
+            foreach($items as $item){
+                $id = $item['id'];
+
+                if ($item['item']['number3'] === null && $item['item']['number4'] !== null) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Format IP Invalid!.',
+                    ], 400);
+                }
+
+                $UserIp = UserIp::find($id);
+
+                if (!$UserIp) {
+                    throw ValidationException::withMessages(["$UserIp Ip Not Found"]);
+                }
+
+                $ip1 = $item['item']['number1'];
+                $ip2 = $item['item']['number2'];
+                $ip3 = $item['item']['number3'];
+                $ip4 = $item['item']['number4'];
+                $ip_address = $ip1 . '.' . $ip2 . '.' . $ip3 . '.' . $ip4;
+                $checkIps = UserIp::select('ip_address')->where('ip_address', 'LIKE', '%' . $ip1 . '.' . $ip2 . '%')->whereNotIn('id', [$id])->pluck('ip_address')->toArray();
+                if ($checkIps != []) {
+
+                    if (in_array($ip_address, $checkIps)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'User Ip already exist',
+                            'ip_whitelist' => $ip_address,
+                        ], 400);
+                    }
+                }
+
+                // Update on Database
+                $description = $item['item']['description'] ?? $UserIp->description;
+                $payload = [
+                    'ip_address' => $ip_address,
+                    'whitelisted' => $item['item']['whitelisted'],
+                    'description' => $description,
+                    'updated_by' => auth()->user()->id,
+                    'updated_at' => now(),
+                ];
+
+                $dataUpdate = [];
+                if ($UserIp->ip_address != $ip_address) {
+                    $dataUpdate['ip_address'] = 'IP Address : ' . $UserIp->ip_address . ' -> ' . $ip_address;
+                }
+                if ($UserIp->whitelisted != $request->whitelisted) {
+                    $dataUpdate['whitelisted'] = 'Whitelisted : ' . ($UserIp->whitelisted == 1 ? 'True' : 'False') . ' -> ' . ($request->whitelisted == 1 ? 'True' : 'False');
+                }
+                if ($UserIp->description != $description) {
+                    $dataUpdate['description'] = 'Description : ' . $UserIp->description . ' -> ' . $description;
+                }
+
+                $dataLog = implode(', ', $dataUpdate) == null ? 'No Data Updated' : implode(', ', $dataUpdate);
+
+                $UserIp->update($payload);
+
+                // Create Activity Log
+                activity('update User ip')->causedBy(Auth::user()->id)
+                ->performedOn($UserIp)
+                ->withProperties([
+                    'ip' => Auth::user()->last_login_ip,
+                    'target' => $UserIp->ip_address,
+                    'activity' => 'Updated User ip',
+                ])
+                ->log('Successfully Updated User ip, ' . $dataLog);
+
+                $userIdData[] = $UserIp;
+            }
+
+//            DB::commit();
+            return response()->json([
+                'status' => 'successful',
+                'message' => 'Users Ip Updated Successfully',
+                'data' =>  $userIdData,
             ],200);
 
         } catch (\Exception$e) {

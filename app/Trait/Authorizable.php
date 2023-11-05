@@ -4,11 +4,12 @@ namespace App\Trait;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
 use Spatie\Permission\Models\Permission;
 
 trait Authorizable
 {
-   
+
     private $abilities = [];
 
     /**
@@ -18,7 +19,7 @@ trait Authorizable
      * @param $parameters
      * @return mixed
      */
-    
+
     public function callAction($method, $parameters)
     {
         if ($ability = $this->getAbility($method)) {
@@ -30,7 +31,7 @@ trait Authorizable
 
     public function getAbility($method)
     {
-        $routeName   = explode('.', \Request::route()->getName());
+        $routeName   = explode('.', Request::route()->getName());
 
         $action      = Arr::get($this->getAbilities(), $method) ?? $method;
 
