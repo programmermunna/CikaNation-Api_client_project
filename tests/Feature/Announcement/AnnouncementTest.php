@@ -28,7 +28,7 @@ class AnnouncementTest extends FeatureBaseCase
             ->createQuietly();
 
 
-        $response = $this->actingAs($user)->postJson(route('announcements.store'), [
+        $response = $this->actingAs($user)->postJson(route('service.announcements.store'), [
             'message' => 'Dummy text for announcement message',
             'status' => rand(0, 1)
         ]);
@@ -63,7 +63,7 @@ class AnnouncementTest extends FeatureBaseCase
             ->createQuietly();
 
 
-        $response = $this->actingAs($user)->getJson(route('announcements.index'));
+        $response = $this->actingAs($user)->getJson(route('service.announcements.index'));
 
         $response->assertStatus(200);
 
@@ -119,7 +119,7 @@ class AnnouncementTest extends FeatureBaseCase
         $announcements = Announcement::factory(5)->createQuietly();
 
 
-        $response = $this->actingAs($user)->putJson(route('announcements.update'), [
+        $response = $this->actingAs($user)->putJson(route('service.announcements.update'), [
             "announcements" => $announcements
         ]);
 
@@ -159,7 +159,7 @@ class AnnouncementTest extends FeatureBaseCase
 
 
 
-        $response = $this->actingAs($user)->deleteJson(route('announcements.destroy'), [
+        $response = $this->actingAs($user)->deleteJson(route('service.announcements.destroy'), [
             "announcements" => [1, 2, 3, 4]
         ]);
 
@@ -204,7 +204,7 @@ class AnnouncementTest extends FeatureBaseCase
 
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson(route('announcements.store'), $payload);
+        $response = $this->actingAs($user)->postJson(route('service.announcements.store'), $payload);
 
         Event::assertDispatched(AnnouncementEvent::class);
     }
