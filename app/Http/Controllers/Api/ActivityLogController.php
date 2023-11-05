@@ -44,6 +44,8 @@ class ActivityLogController extends Controller
 
     private function filter($query, $request)
     {
+        $dateRange = $request->dateRange ? explode('to',$request->dateRange) : false;
+
         return $query->when($request->description ?? false, function ($query, $description) {
             $query->where('description', 'like', "%$description%");
         })
@@ -67,6 +69,11 @@ class ActivityLogController extends Controller
                     $request->start_date,
                     $request->end_date
                 ));
+            })
+
+            ->when($dateRange, function ($query) use ($dateRange) {
+
+                $query->whereBetween('created_at', $this->parseDate(...$dateRange));
             });
     }
 
