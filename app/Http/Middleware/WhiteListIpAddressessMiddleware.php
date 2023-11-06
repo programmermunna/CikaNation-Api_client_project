@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\AdminIpModel;
+use App\Models\UserIp;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -28,7 +28,7 @@ class WhiteListIpAddressessMiddleware
         }
 
         $ipClient = $request->ip ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        $ipWhiteListed = AdminIpModel::select('ip_address')->where('whitelisted', true)->get();
+        $ipWhiteListed = UserIp::select('ip_address')->where('whitelisted', true)->get();
         $ipWL = [];
         foreach ($ipWhiteListed as $key => $ip) {
             $arrayIp = explode('.', $ip->ip_address);
