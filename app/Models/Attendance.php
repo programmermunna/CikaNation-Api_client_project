@@ -10,7 +10,17 @@ class Attendance extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['username','clock','date','created_at','updated_at','created_by'];
+    protected $fillable = [
+        'username',
+        'clock',
+        'date',
+        'created_by',
+        'created_at',
+        'updated_by',
+        'updated_at',
+        'deleted_by',
+        'deleted_at',
+    ];
 
 
     public function scopeFilter($query, $request)
