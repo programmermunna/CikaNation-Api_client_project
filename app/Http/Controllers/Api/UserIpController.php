@@ -50,7 +50,11 @@ class UserIpController extends Controller
         $currentItems = array_slice($items, $perPage * ($currentPage - 1), $perPage);
         $data = new LengthAwarePaginator($currentItems, count($items), $perPage, $currentPage);
 
-        return $data;
+        return response()->json([
+            'status' => 'successful',
+            'message' => 'Admin Ip Retrieved Successfully',
+            'data' => $data,
+        ]);
 
     }
 
