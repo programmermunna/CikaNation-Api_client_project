@@ -37,25 +37,17 @@ class UserIpTest extends FeatureBaseCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
+                    'nomor',
                     'id',
-                    'user',
-                    'ip_address',
+                    'ip1',
+                    'ip2',
+                    'ip3',
+                    'ip4',
                     'whitelisted',
                     'description',
                     'created_at',
-                    'created_by',
-                ]
-                ],
-                'links',
-                'meta',
+                ]]
         ]);
-
-        $response->assertJson([
-            'data' => [],
-            'links' => true,
-            'meta' => true,
-        ]);
-
 
     }
 
