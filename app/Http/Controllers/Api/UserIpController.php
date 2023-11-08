@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Constants\AppConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserIpResource;
 use App\Models\UserIp;
@@ -16,12 +17,13 @@ use Illuminate\Validation\ValidationException;
 class UserIpController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json([
-            'status' => 'success',
-            'data'   => UserIpResource::collection(UserIp::get()),
-        ], 200);
+        $UserIp = UserIp::latest()
+        ->filter($request)
+        ->paginate(AppConstant::PAGINATION);
+
+        return UserIpResource::collection($UserIp);
     }
 
     use Authorizable;
