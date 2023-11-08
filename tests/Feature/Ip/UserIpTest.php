@@ -19,22 +19,14 @@ class UserIpTest extends FeatureBaseCase
     {
         $this->artisan('migrate:fresh --seed');
 
-        $user = User::factory()
-            ->state([
-                'active' => true
-            ])
-            ->createQuietly();
+        $user = User::where('username','administrator')->first();
 
-            $user->assignRole(Role::where('name', 'Administrator')->first());
-
-            UserIp::create([
-                'ip_address' => '103.15.245.75',
-                'description' => 'testing Ip',
-                'whitelisted' => 1,
-                'created_by' => 2,
-            ]);
-
-        $user->assignRole(Role::where('name', 'Administrator')->first());
+        UserIp::create([
+            'ip_address' => '103.15.245.75',
+            'description' => 'testing Ip',
+            'whitelisted' => 1,
+            'created_by' => 2,
+        ]);
 
 
         $response = $this->actingAs($user)->getJson('/api/v1/user-ip');
