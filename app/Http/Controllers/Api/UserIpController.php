@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Constants\AppConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserIpResource;
 use App\Models\UserIp;
 use App\Trait\Authorizable;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,12 +18,44 @@ use Illuminate\Validation\ValidationException;
 class UserIpController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
+        $searchTerm = $request->search ?? '';
+        $model = UserIp::where('ip_address', 'like', '%' . $searchTerm . '%')
+            ->orderBy('id', 'desc');
+
+        $datas = $model->get();
+        $i = 1;
+
+        $dataAll = [];
+        foreach ($datas as $key => $value) {
+            $ip = explode(".", $value->ip_address);
+            $dataAll[] = [
+                "nomor" => $i++,
+                "id" => $value->id,
+                "ip1" => $ip[0],
+                "ip2" => $ip[1],
+                "ip3" => $ip[2],
+                "ip4" => $ip[3],
+                "whitelisted" => $value->whitelisted == 1 ? true : false,
+                "description" => $value->description,
+                "created_at" => $value->created_at,
+                "updated_at" => $value->updated_at,
+            ];
+        }
+
+        $items = array_values($dataAll);
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 20;
+        $currentItems = array_slice($items, $perPage * ($currentPage - 1), $perPage);
+        $data = new LengthAwarePaginator($currentItems, count($items), $perPage, $currentPage);
+
         return response()->json([
-            'status' => 'success',
-            'data'   => UserIpResource::collection(UserIp::get()),
-        ], 200);
+            'status' => 'successful',
+            'message' => 'Admin Ip Retrieved Successfully',
+            'data' => $data,
+        ]);
+
     }
 
     use Authorizable;
