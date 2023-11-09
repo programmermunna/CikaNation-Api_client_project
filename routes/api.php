@@ -2,8 +2,6 @@
 
 use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AnnouncementController;
-use App\Http\Controllers\Api\AttendanceController;
-use App\Http\Controllers\Api\CashflowController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -25,7 +23,6 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::get('logs/download', [ActivityLogController::class, 'download'])->name('logs.download');
         Route::resource('user', UserController::class);
         Route::resource('permissions', PermissionController::class)->only('index', 'update');
-        Route::resource('attendance', AttendanceController::class);
     });
 
 
@@ -38,7 +35,6 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
         Route::put('announcements', [AnnouncementController::class, 'update'])->name('announcements.update');
         Route::delete('announcements', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-        Route::resource('cashflows', CashflowController::class);
     });
 
 
