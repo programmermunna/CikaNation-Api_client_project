@@ -28,12 +28,6 @@ class UserIp extends Model
         'deleted_at',
     ];
 
-    public function scopeFilter($query, $request)
-    {
-        $query->when($request->ip_address ?? false, fn($query, $ip_address) => $query
-            ->where('ip_address','like',"%$ip_address%"));
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class, 'updated_by')->withDefault([
