@@ -19,11 +19,7 @@ class CashflowFactory extends Factory
         return [
             'item_name' => $this->faker->sentence(),
             'item_price' => rand(1000,99999),
-            'upload' => [
-                $this->faker->imageUrl(),
-                $this->faker->imageUrl(),
-                $this->faker->imageUrl(),
-            ]
+            'upload' => $this->faker->imageUrl()
         ];
     }
 }
