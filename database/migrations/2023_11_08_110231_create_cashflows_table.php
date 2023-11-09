@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('cashflows', function (Blueprint $table) {
             $table->id();
-            $table->string('item_name',255);
+            $table->string('item_name',255)->index();
             $table->float('item_price');
             $table->text('upload');
             $table->foreignId('created_by')->nullable();

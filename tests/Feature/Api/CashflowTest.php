@@ -28,7 +28,7 @@ class CashflowTest extends FeatureBaseCase
                 '*' => [
                     'id',
                     'item_name',
-                    'uploads',
+                    'upload',
                     'created_at',
                 ]
                 ],

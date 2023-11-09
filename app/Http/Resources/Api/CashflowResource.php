@@ -18,7 +18,7 @@ class CashflowResource extends JsonResource
             'id'         => $this->id,
             'item_name'  => $this->item_name,
             'item_price' => $this->item_price,
-            'uploads'    => $this->upload,
+            'upload'     => $this->upload,
             'created_at' => $this->created_at->format('d-F-Y H:i A')
         ];
     }
