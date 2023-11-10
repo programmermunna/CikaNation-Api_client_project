@@ -201,5 +201,19 @@ class CashflowTest extends FeatureBaseCase
 
 
         $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'status',
+            'message',
+            'data' => [
+                'id',
+                'item_name',
+                'item_price',
+                'upload',
+                'created_by',
+                'created_at',
+            ]
+        ]);
+
     }
 }
