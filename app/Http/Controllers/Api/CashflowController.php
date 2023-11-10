@@ -55,7 +55,7 @@ class CashflowController extends Controller
 
             if (!$cashflow) throw new \Exception('Cashflow not found', 404);
 
-            $cashflow = $cashflow->update($request->validated());
+            $cashflow->update($request->validated());
 
             return response()->json([
                 'status'  => 'success',
