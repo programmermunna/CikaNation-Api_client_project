@@ -35,7 +35,7 @@ class CashflowController extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Cashflow created successfully',
-                'data'    => $data
+                'data'    => new CashflowResource($data)
             ],200);
 
         }catch(\Exception $error){

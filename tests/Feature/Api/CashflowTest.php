@@ -137,7 +137,6 @@ class CashflowTest extends FeatureBaseCase
                 'item_name',
                 'item_price',
                 'upload',
-                'created_by',
                 'created_at',
             ]
         ]);
