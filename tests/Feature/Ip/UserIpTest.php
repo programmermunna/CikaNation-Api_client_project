@@ -35,42 +35,22 @@ class UserIpTest extends FeatureBaseCase
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
-            'status',
-            'message',
             'data' => [
-
-                'current_page',
-                'data' => [
-                    '*' => [
-                        'nomor',
-                        'id',
-                        'ip1',
-                        'ip2',
-                        'ip3',
-                        'ip4',
-                        'whitelisted',
-                        'description',
-                        'created_at',
-                    ]
-                ],
-                'first_page_url',
-                'from',
-                'last_page',
-                'last_page_url',
-                'links' => [
-                    '*' => [
-                        'url',
-                        'label',
-                        'active'
-                    ]
-                ],
-                'next_page_url',
-                'path',
-                'per_page',
-                'prev_page_url',
-                'to',
-                'total',
+                '*' => [
+                    'id',
+                    'user',
+                    'ip1',
+                    'ip2',
+                    'ip3',
+                    'ip4',
+                    'ip_address',
+                    'whitelisted',
+                    'description',
+                    'created_at',
+                ]
             ],
+            'links',
+            'meta'
         ]);
 
     }

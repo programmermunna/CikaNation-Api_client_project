@@ -34,4 +34,32 @@ class UserIp extends Model
             'name' => 'N/A',
         ]);
     }
+
+    protected $appends = ['ip1', 'ip2', 'ip3', 'ip4'];
+
+    public function getIp1Attribute()
+    {
+        return (int) explode('.', $this->ip_address)[0];
+    }
+
+    public function getIp2Attribute()
+    {
+        return (int) explode('.', $this->ip_address)[1];
+    }
+
+    public function getIp3Attribute()
+    {
+        return explode('.', $this->ip_address)[2] == '*' ? null : (int) explode('.', $this->ip_address)[2];
+    }
+
+    public function getIp4Attribute()
+    {
+        return explode('.', $this->ip_address)[3] == '*' ? null : (int) explode('.', $this->ip_address)[3];
+    }
+
+    public function scopeFilter($query, $request)
+    {
+        $query->when($request->ip_address ?? false, fn($query, $ip_address) => $query
+            ->where('ip_address','like',"%$ip_address%"));
+    }
 }
