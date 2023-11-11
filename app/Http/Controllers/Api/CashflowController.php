@@ -60,7 +60,7 @@ class CashflowController extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Cashflow updated successfully',
-                'data'    => $cashflow
+                'data'    => new CashflowResource($cashflow)
             ], 200);
         } catch (\Exception $error) {
             return response()->json([

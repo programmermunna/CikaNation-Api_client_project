@@ -13,6 +13,11 @@ class Cashflow extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts   = [
+        'upload' => 'array',
+    ];
+
+
 
     protected static function boot()
     {

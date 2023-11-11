@@ -16,13 +16,13 @@ Route::group(['middleware' => ['auth:api']], function () {
      * Admin module routes
      */
     Route::name('admin.')->group(function () {
-        Route::resource('user-ip', UserIpController::class);
+        Route::apiResource('user-ip', UserIpController::class);
         Route::put('/user-ips', [UserIpController::class, 'multi_update'])->name('user-ip.multi_update');
-        Route::resource('roles', RoleController::class);
+        Route::apiResource('roles', RoleController::class);
         Route::get('logs', [ActivityLogController::class, 'index'])->name('logs.index');
         Route::get('logs/download', [ActivityLogController::class, 'download'])->name('logs.download');
-        Route::resource('user', UserController::class);
-        Route::resource('permissions', PermissionController::class)->only('index', 'update');
+        Route::apiResource('user', UserController::class);
+        Route::apiResource('permissions', PermissionController::class)->only('index', 'update');
     });
 
 
@@ -35,7 +35,7 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
         Route::put('announcements', [AnnouncementController::class, 'update'])->name('announcements.update');
         Route::delete('announcements', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-        Route::resource('cashflows', CashflowController::class);
+        Route::apiResource('cashflows', CashflowController::class);
     });
 
 
