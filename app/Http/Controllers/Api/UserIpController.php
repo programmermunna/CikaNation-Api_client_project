@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Constants\AppConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserIpResource;
 use App\Http\Resources\UserIpResourceCollection;
 use App\Models\UserIp;
 use App\Trait\Authorizable;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,15 +16,15 @@ use Illuminate\Validation\ValidationException;
 
 class UserIpController extends Controller
 {
+    use Authorizable;
 
-    public function index(Request $request)
+    public function index()
     {
         $UserIps = UserIp::paginate(20);
         return UserIpResource::collection($UserIps);
 
     }
 
-    use Authorizable;
 
     public function store(Request $request)
     {
