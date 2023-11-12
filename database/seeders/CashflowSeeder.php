@@ -13,6 +13,6 @@ class CashflowSeeder extends Seeder
      */
     public function run(): void
     {
-        Cashflow::factory(100)->create();
+        Cashflow::factory(30)->create();
     }
 }
