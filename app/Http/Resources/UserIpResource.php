@@ -16,7 +16,6 @@ class UserIpResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => new UserResource($this->user),
             'ip1' => $this->ip1,
             'ip2' => $this->ip2,
             'ip3' => $this->ip3,
