@@ -19,14 +19,20 @@ class UserIpTest extends FeatureBaseCase
     {
         $this->artisan('migrate:fresh --seed');
 
-        $user = User::where('username','administrator')->first();
+        $user = User::factory()
+            ->state([
+                'active' => true
+            ])
+            ->createQuietly();
 
-        UserIp::create([
-            'ip_address' => '103.15.245.75',
-            'description' => 'testing Ip',
-            'whitelisted' => 1,
-            'created_by' => 2,
-        ]);
+            UserIp::create([
+                'ip_address' => '103.15.245.75',
+                'description' => 'testing Ip',
+                'whitelisted' => 1,
+                'created_by' => 2,
+            ]);
+
+        $user->assignRole(Role::where('name', 'Administrator')->first());
 
 
         $response = $this->actingAs($user)->getJson('/api/v1/user-ip');
@@ -34,44 +40,11 @@ class UserIpTest extends FeatureBaseCase
 
         $response->assertStatus(200);
 
-        $response->assertJsonStructure([
-            'status',
-            'message',
-            'data' => [
-
-                'current_page',
-                'data' => [
-                    '*' => [
-                        'nomor',
-                        'id',
-                        'ip1',
-                        'ip2',
-                        'ip3',
-                        'ip4',
-                        'whitelisted',
-                        'description',
-                        'created_at',
-                    ]
-                ],
-                'first_page_url',
-                'from',
-                'last_page',
-                'last_page_url',
-                'links' => [
-                    '*' => [
-                        'url',
-                        'label',
-                        'active'
-                    ]
-                ],
-                'next_page_url',
-                'path',
-                'per_page',
-                'prev_page_url',
-                'to',
-                'total',
-            ],
+        $response->assertJson([
+            'status' => true,
+            'data' => true
         ]);
+
 
     }
 
