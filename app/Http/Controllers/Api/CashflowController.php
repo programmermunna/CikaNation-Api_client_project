@@ -36,7 +36,7 @@ class CashflowController extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Cashflow created successfully',
-                'data'    => $data
+                'data'    => new CashflowResource($data)
             ], 200);
         } catch (\Exception $error) {
             return response()->json([
@@ -45,11 +45,11 @@ class CashflowController extends Controller
             ], 500);
         }
     }
-    
+
 
     public function update(UpdateCashflowRequest $request, $id)
     {
-        
+
         try {
             $cashflow = Cashflow::find($id);
 

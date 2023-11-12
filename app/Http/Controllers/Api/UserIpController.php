@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 class UserIpController extends Controller
 {
+    use Authorizable;
 
     public function index()
     {
@@ -24,7 +25,6 @@ class UserIpController extends Controller
         ], 200);
     }
 
-    use Authorizable;
 
     public function store(Request $request)
     {

@@ -5,7 +5,6 @@ namespace Tests\Feature\Api;
 use App\Models\Cashflow;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 use Tests\FeatureBaseCase;
 
 class CashflowTest extends FeatureBaseCase
@@ -30,6 +29,7 @@ class CashflowTest extends FeatureBaseCase
                     'item_name',
                     'upload',
                     'created_at',
+                    'created_by' => [],
                 ]
             ],
             'links',
@@ -139,11 +139,12 @@ class CashflowTest extends FeatureBaseCase
                 'item_name',
                 'item_price',
                 'upload',
-                'created_by',
                 'created_at',
+                'created_at' => [],
             ]
         ]);
     }
+
 
 
     public function testItemNameRequiredValidationOnUpdate()
@@ -183,6 +184,10 @@ class CashflowTest extends FeatureBaseCase
     }
 
 
+
+    /**
+     * Cashflow update test case
+     */
     public function testCashflowUpdateSuccessfully()
     {
         $this->artisan('migrate:fresh --seed');
@@ -215,5 +220,82 @@ class CashflowTest extends FeatureBaseCase
             ]
         ]);
 
+    }
+
+
+    /**
+     * @test
+     *
+     * @dataProvider cashflowData
+     */
+    public function testCashflowInputValidation($credentials, $errors, $errorKeys)
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::where('username', 'administrator')->first();
+
+        $response = $this->actingAs($user)->postJson(route('service.cashflows.store'), $credentials);
+
+        $response->assertJsonValidationErrors($errorKeys);
+
+        foreach ($errorKeys as $errorKey) {
+            $response->assertJsonValidationErrorFor($errorKey);
+        }
+
+        $response->assertStatus(422);
+    }
+
+
+
+    public static function cashflowData(): array
+    {
+
+        return [
+            [
+                [
+                    'item_name' => 'item name',
+                    'item_price' => 1200,
+                ],
+                [
+                    'image' => [
+                        'The image field is required.',
+                    ],
+                ],
+                [
+                    'image'
+                ]
+
+            ],
+            [
+                [
+                    'item_name' => 'Item name',
+                    'image'     => UploadedFile::fake()->image('banner.pdf', 200, 200)
+
+                ],
+                [
+                    'item_price' => [
+                        'The item price field is required.'
+                    ],
+                ],
+                [
+                    'item_price'
+                ]
+            ],
+            [
+                [
+
+                    'item_price' => 1200,
+                    'image'      => UploadedFile::fake()->image('banner.pdf', 200, 200)
+                ],
+                [
+                    'item_name' => [
+                        'The item name field is required.'
+                    ],
+                ],
+                [
+                    'item_name'
+                ]
+            ]
+        ];
     }
 }

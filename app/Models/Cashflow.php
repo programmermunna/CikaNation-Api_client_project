@@ -13,11 +13,6 @@ class Cashflow extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts   = [
-        'upload' => 'array',
-    ];
-
-
 
     protected static function boot()
     {
@@ -34,6 +29,12 @@ class Cashflow extends Model
     {
         $query->when($request->item_name ?? false, fn($query, $item_name) => $query
             ->where('item_name','like',"%$item_name%"));
+    }
+
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class,'created_by','id');
     }
 
 
