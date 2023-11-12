@@ -6,6 +6,7 @@ use App\Constants\AppConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\UserIP\UserIpRequest;
 use App\Http\Resources\Api\UserIpResource;
+use App\Http\Resources\Api\UserResource;
 use App\Http\Resources\UserIpResourceCollection;
 use App\Models\UserIp;
 use App\Trait\Authorizable;
@@ -91,7 +92,7 @@ class UserIpController extends Controller
             return response()->json([
                 'status' => 'successful',
                 'message' => 'User Ip Created Successfully',
-                'data' => $UserIp,
+                'data' => new UserIpResource($UserIp),
             ],200);
 
         } catch (\Exception$e) {
@@ -187,7 +188,7 @@ class UserIpController extends Controller
             return response()->json([
                 'status' => 'successful',
                 'message' => 'User Ip Updated Successfully',
-                'data' => $UserIp,
+                'data' => new UserIpResource($UserIp),
             ],200);
 
         } catch (\Exception$e) {
@@ -285,7 +286,7 @@ class UserIpController extends Controller
             return response()->json([
                 'status' => 'successful',
                 'message' => 'Users Ip Updated Successfully',
-                'data' =>  $userIdData,
+                'data' =>  UserIpResource::collection($userIdData),
             ],200);
 
         } catch (\Exception$e) {
@@ -296,7 +297,10 @@ class UserIpController extends Controller
         }
     }
 
-    public function destroy($ids)
+    /**
+     * @throws ValidationException
+     */
+    public function destroy($ids): JsonResponse
     {
 
         try {

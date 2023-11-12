@@ -25,7 +25,10 @@ class UserIpResource extends JsonResource
             'description' => $this->description,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'deleted_at' => $this->updated_at,
+            'updated_by' => $this->updated_by,
             'created_by' => $this->created_by,
+            'deleted_by' => $this->deleted_by,
         ];
     }
 }
