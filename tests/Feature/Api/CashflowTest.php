@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Cashflow;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Tests\FeatureBaseCase;
@@ -116,7 +117,7 @@ class CashflowTest extends FeatureBaseCase
 
 
 
-    public function testCashflowCreation()
+    public function testCashflowCreationSuccessfully()
     {
         $this->artisan('migrate:fresh --seed');
 
@@ -142,6 +143,83 @@ class CashflowTest extends FeatureBaseCase
                 'created_at' => [],
             ]
         ]);
+    }
+
+
+
+    public function testItemNameRequiredValidationOnUpdate()
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::where('username', 'administrator')->first();
+        $image = UploadedFile::fake()->image('banner.png', 200, 200); // pdf file type
+
+        $cashflow = Cashflow::first();
+
+        $response = $this->actingAs($user)->putJson(route('service.cashflows.update', $cashflow->id), [
+            'item_name' => '',
+            'item_price' => 1200,
+            'image' => $image,
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrorFor('item_name', 'errors');
+    }
+
+    public function testItemPriceRequiredValidationOnUpdate()
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::where('username', 'administrator')->first();
+        $image = UploadedFile::fake()->image('banner.png', 200, 200); // pdf file type
+
+        $cashflow = Cashflow::first();
+
+        $response = $this->actingAs($user)->putJson(route('service.cashflows.update', $cashflow->id), [
+            'item_name' => 'update name',
+            'item_price' => '',
+            'image' => $image,
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrorFor('item_price', 'errors');
+    }
+
+
+
+    /**
+     * Cashflow update test case
+     */
+    public function testCashflowUpdateSuccessfully()
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::where('username', 'administrator')->first();
+
+        $image = UploadedFile::fake()->image('banner.png', 200, 200);
+
+        $cashflow = Cashflow::first();
+
+        $response = $this->actingAs($user)->putJson(route('service.cashflows.update', $cashflow->id), [
+            'item_name'  => 'Item name',
+            'item_price' => 1200,
+            'image'      => $image,
+        ]);
+
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'status',
+            'message',
+            'data' => [
+                'id',
+                'item_name',
+                'item_price',
+                'upload',
+                'created_by' => [],
+                'created_at',
+            ]
+        ]);
+
     }
 
 
