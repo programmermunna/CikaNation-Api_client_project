@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserIpResource extends JsonResource
+class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,13 +16,16 @@ class UserIpResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => new UserResource($this->user),
-            'ip_address' => $this->ip_address,
-            'whitelisted' => $this->whitelisted,
-            'description' => $this->description,
+            'name' => $this->name,
+            'username' => $this->username,
+            'email' => $this->email,
+            'active' => $this->active,
+            'last_login_ip' => $this->last_login_ip,
+            'timezone' => $this->timezone,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,
+            'last_login_at' => $this->last_login_at,
         ];
     }
 }
