@@ -35,7 +35,8 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
         Route::put('announcements', [AnnouncementController::class, 'update'])->name('announcements.update');
         Route::delete('announcements', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-        Route::apiResource('cashflows',CashflowController::class);
+        Route::apiResource('cashflows', CashflowController::class);
+        Route::delete('cashflows-delete-many', [CashflowController::class,'deleteMany'])->name('cashflows.delete_many');
     });
 
 

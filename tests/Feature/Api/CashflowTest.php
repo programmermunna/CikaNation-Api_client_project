@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Cashflow;
 use App\Models\User;
+use Database\Factories\CashflowFactory;
 use Illuminate\Http\UploadedFile;
 use Tests\FeatureBaseCase;
 
@@ -219,7 +220,64 @@ class CashflowTest extends FeatureBaseCase
                 'created_at',
             ]
         ]);
+    }
 
+
+
+
+    public function testSoftDeleteCashflow()
+    {
+
+        $this->artisan('migrate:fresh --seed');
+
+        $cashflow = Cashflow::factory()->create();// create cashflow
+        $cashflow->delete();        // delete cashflow
+        $cashflow = Cashflow::withTrashed()->find($cashflow->id); // retrive cashflow with trashed
+
+        $this->assertSoftDeleted('cashflows', [
+            'id'          => $cashflow->id,
+            'item_name'   => $cashflow->item_name,
+            'item_price' => $cashflow->item_price,
+            'upload' => $cashflow->upload
+        ]);
+    }
+
+
+
+    public function testDeleteSingleCashflow()
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::where('username', 'administrator')->first();
+
+        $response = $this->actingAs($user)->deleteJson(route('service.cashflows.destroy', Cashflow::first()->id));
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'success',
+            'message' => 'Cashflow deleted successfully'
+        ]);
+    }
+
+
+
+    public function testDeleteManyCashflow()
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::where('username', 'administrator')->first();
+
+
+        $cashflowId = Cashflow::take(5)->pluck('id')->toArray();
+
+        $response = $this->actingAs($user)->deleteJson(route('service.cashflows.delete_many'), [
+            'cashflow_id' => $cashflowId
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'success',
+            'message' => 'Cashflows are deleted successfully'
+        ]);
     }
 
 
@@ -243,6 +301,81 @@ class CashflowTest extends FeatureBaseCase
         }
 
         $response->assertStatus(422);
+    }
+
+
+
+    /**
+     * @test
+     *
+     * @dataProvider cashflowId
+     */
+    public function testCashflowDeleteMultipleInputValidation($credentials, $errors, $errorKeys)
+    {
+        $this->artisan('migrate:fresh --seed');
+
+        $user = User::where('username', 'administrator')->first();
+
+        $response = $this->actingAs($user)->deleteJson(route('service.cashflows.delete_many'), $credentials);
+
+        $response->assertJsonValidationErrors($errorKeys);
+
+        foreach ($errorKeys as $errorKey) {
+            $response->assertJsonValidationErrorFor($errorKey);
+        }
+
+        $response->assertStatus(422);
+    }
+
+
+
+    public static function cashflowId(): array
+    {
+        return [
+            [
+                [
+                    'cashflow_id',
+                ],
+                [
+                    'cashflow_id' => [
+                        "The cashflow id field is required."
+                    ]
+                ],
+                [
+                    'cashflow_id'
+                ]
+            ],
+            [
+                [
+                    'cashflow_id' => 1
+                ],
+                [
+                    "cashflow_id" => [
+                        "The cashflow id field must be an array."
+                    ]
+                ],
+                [
+                    'cashflow_id',
+                ]
+            ],
+
+            [
+                [
+                    'cashflow_id' => [
+                        1, 2, "abc", "not exists", 89898989, 23423
+                    ]
+                ],
+                [
+                    "cashflow_id" => [
+                        "The selected cashflow id is invalid."
+                    ]
+                ],
+                [
+                    'cashflow_id',
+                ]
+            ],
+
+        ];
     }
 
 
