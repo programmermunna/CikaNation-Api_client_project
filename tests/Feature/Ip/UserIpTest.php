@@ -44,7 +44,6 @@ class UserIpTest extends FeatureBaseCase
             'data' => [
                 '*' => [
                     'id',
-                    'user',
                     'ip1',
                     'ip2',
                     'ip3',
