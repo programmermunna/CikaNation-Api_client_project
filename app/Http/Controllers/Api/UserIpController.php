@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserIpResource;
+use App\Http\Resources\Api\UserIpResource;
 use App\Http\Resources\UserIpResourceCollection;
 use App\Models\UserIp;
 use App\Trait\Authorizable;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,7 +21,7 @@ class UserIpResource extends JsonResource
             'ip3' => $this->ip3,
             'ip4' => $this->ip4,
             'ip_address' => $this->ip_address,
-            'whitelisted' => $this->whitelisted == 1 ? true : false,
+            'whitelisted' => $this->whitelisted == 1,
             'description' => $this->description,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
